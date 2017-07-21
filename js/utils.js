@@ -1,3 +1,25 @@
+const USER_DATA = "userData";
+
+function startForm(data, callback) {
+  storeObject(USER_DATA, data, callback);
+}
+
+function stopForm(callback) {
+  chrome.storage.local.clear(callback);
+}
+
+function ifStarted(startedCallback, stoppedCallback) {+
+  getStoredObjects(USER_DATA, function(data) {
+    if (data && data.length > 0) {
+      // Call first callback if data is stored
+      startedCallback(data);
+    } else if (stoppedCallback) {
+      // Otherwise, call second callback
+      stoppedCallback();
+    }
+  });
+}
+
 function setSelectValue(selectId, value) {
   var selector = 'select[id$="' + selectId + '"]';
   $(selector).find('option').each(function(){
@@ -9,6 +31,18 @@ function setSelectValue(selectId, value) {
     }
   });
   return false;
+}
+
+function storeObject(key, objectToStore, callback) {
+  var stored = {};
+  stored[key] = objectToStore;
+  chrome.storage.local.set(stored, callback);
+}
+
+function getStoredObjects(keys, callback) {
+  chrome.storage.local.get(keys, function(response) {
+    callback(response[keys]);
+  });
 }
 
 function syncStore(key, objectToStore, callback) {

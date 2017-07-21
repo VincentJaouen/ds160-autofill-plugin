@@ -7,16 +7,17 @@ function createTab(){
 	});
 }
 
-function fetchUserData(url, tabId, sendResponse) {
+function fetchUserData(userId, tabId, sendResponse) {
 	$.ajax({
 		type: "GET",
 		dataType: 'json',
-		url: url,
+		url: getAPIUrl(userId),
 		success: function(data){
 			if(data.length > 0){
-				localStorage.setItem("personalData", JSON.stringify(data));
-				chrome.tabs.sendMessage(tabId, {from: "background", data: data});
-				sendResponse({"userData": data});
+				startForm(data, function() {
+					chrome.tabs.sendMessage(tabId, {from: "background", data: data});
+					sendResponse({"userData": data});
+				});
 			}
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -25,9 +26,13 @@ function fetchUserData(url, tabId, sendResponse) {
 	});
 }
 
+function getAPIUrl(userId) {
+	return "https://www.oliver.ai/process_users/" + userId + '.json';
+}
+
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-  if (msg.from === 'popup' && msg.tabId && msg.url) {
-		fetchUserData(msg.url, msg.tabId, sendResponse);
+  if (msg.from === 'popup' && msg.tabId && msg.userId) {
+		fetchUserData(msg.userId, msg.tabId, sendResponse);
   } else if (msg.from === "restart" && msg.tabId) {
   	chrome.tabs.sendMessage(msg.tabId, { from: "restart" });
   } else if (msg.from === "content" && msg.data) {

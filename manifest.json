@@ -12,6 +12,7 @@
   "permissions": [
      "tabs",
      "storage",
+     "unlimitedStorage",
      "*://*/*"
   ],
   "browser_action": {
@@ -27,11 +28,11 @@
     "default_popup": "html/popup.html"
   },
   "background": {
-	"scripts": ["js/jquery.js","js/background.js"]
+	"scripts": ["js/jquery.js","js/background.js","js/utils.js"]
   },
   "content_scripts": [{
       "matches": [ "*://ceac.state.gov/GenNIV/*"],
-      "js":  [ "js/jquery.js","js/utils.js","js/content.js"],
+      "js":  [ "js/jquery.js","js/utils.js","js/pages.js","js/content.js"],
       "css": ["css/form.css"],
       "run_at": "document_end"
     }
