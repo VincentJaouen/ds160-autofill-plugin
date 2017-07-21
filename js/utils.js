@@ -1,16 +1,56 @@
 function setSelectValue(selectId, value) {
-  console.log(selectId, value);
   var selector = 'select[id$="' + selectId + '"]';
   $(selector).find('option').each(function(){
     if($(this).text() == value || $(this).text() == value.toUpperCase().trim()) {
-      console.log($(this).text());
       $(selector).val($(this).val());
       $(selector).change();
-
+      // If value is found, return true
       return true;
     }
   });
   return false;
+}
+
+function syncStore(key, objectToStore, callback) {
+    var jsonstr = JSON.stringify(objectToStore);
+    var i = 0;
+    var storageObj = {};
+
+    // split jsonstr into chunks and store them in an object indexed by `key_i`
+    while(jsonstr.length > 0) {
+        var index = key + "_" + i++;
+
+        // since the key uses up some per-item quota, see how much is left for the value
+        // also trim off 2 for quotes added by storage-time `stringify`
+        var valueLength = chrome.storage.sync.QUOTA_BYTES_PER_ITEM - index.length - 2000;
+
+        // trim down segment so it will be small enough even when run through `JSON.stringify` again at storage time
+        var segment = jsonstr.substr(0, valueLength);
+
+        storageObj[index] = segment;
+        jsonstr = jsonstr.substr(valueLength);
+    }
+    // store all the chunks
+		chrome.storage.sync.set(storageObj);
+		// Store keys in order to retrieve object later
+		var keys = [];
+		for(var k in storageObj) keys.push(k);
+		var indexer = {};
+		indexer[key] = keys;
+		chrome.storage.sync.set(indexer, callback);
+}
+
+function getStore(key, callback) {
+	chrome.storage.sync.get(key, function(object){
+		chrome.storage.sync.get(object[key], function(obj) {
+			var finalObjectString = '';
+			for(var objKey in obj) {
+				finalObjectString += obj[objKey];
+			}
+			var result = JSON.parse(finalObjectString);
+			callback(result);
+		});
+	});
 }
 
 String.prototype.numerize = function () {
@@ -847,52 +887,4 @@ String.prototype.isLatin=function(){return this==this.latinise()}
 String.prototype.replaceAll = function(str1, str2, ignore)
 {
 		return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
-}
-
-function syncStore(key, objectToStore, callback) {
-    var jsonstr = JSON.stringify(objectToStore);
-    var i = 0;
-    var storageObj = {};
-
-    // split jsonstr into chunks and store them in an object indexed by `key_i`
-    while(jsonstr.length > 0) {
-        var index = key + "_" + i++;
-
-        // since the key uses up some per-item quota, see how much is left for the value
-        // also trim off 2 for quotes added by storage-time `stringify`
-        var valueLength = chrome.storage.sync.QUOTA_BYTES_PER_ITEM - index.length - 2000;
-
-        // trim down segment so it will be small enough even when run through `JSON.stringify` again at storage time
-        var segment = jsonstr.substr(0, valueLength);
-
-        storageObj[index] = segment;
-        jsonstr = jsonstr.substr(valueLength);
-    }
-    // store all the chunks
-		chrome.storage.sync.set(storageObj);
-		// Store keys in order to retrieve object later
-		var keys = [];
-		for(var k in storageObj) keys.push(k);
-		var indexer = {};
-		indexer[key] = keys;
-		chrome.storage.sync.set(indexer, callback);
-		console.log(indexer);
-}
-
-function getStore(key, callback) {
-	chrome.storage.sync.get(key, function(object){
-		console.log(object);
-		chrome.storage.sync.get(object[key], function(obj) {
-			var finalObjectString = '';
-			for(var objKey in obj) {
-				console.log('element');
-				console.log(obj[objKey]);
-				finalObjectString += obj[objKey];
-			}
-			console.log(finalObjectString);
-
-			var result = JSON.parse(finalObjectString);
-			callback(result);
-		});
-	});
 }

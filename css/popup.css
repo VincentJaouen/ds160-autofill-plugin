@@ -6,7 +6,7 @@ html, body{
     width: 100%;
 }
 .well-searchbox {
-  
+
   padding: 5px;
   width:100%;
   height: 100%;
@@ -61,6 +61,11 @@ html, body{
 .well-searchbox .container .table-fixed tbody td, .table-fixed thead > tr> th {
   border-bottom-width: 0;
 }
+
+.user-name {
+  color: white;
+}
+
 #tbl_results .w-1{
   width: 10%;
 }

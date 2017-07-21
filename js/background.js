@@ -6,37 +6,37 @@ function createTab(){
 			 });
 	});
 }
-chrome.runtime.onMessage.addListener(function (msg, sender,sendResponse) {
-	console.log(msg.from);
-	console.log(msg.tabId);
-  if ((msg.from === 'popup') && (msg.tabId) && msg.url) {
-  	$.ajax({
-	    type: "GET",  
-	    dataType: 'json',
-	    url: msg.url,
-	    success: function(data){
-	    	console.log(data);
-	    	if(data.length){
-	    		localStorage.setItem("personalData", JSON.stringify(data));
-	    		chrome.tabs.sendMessage(msg.tabId, {from: "background", data: data});
-	    	}
-    	},
-    	error: function(XMLHttpRequest, textStatus, errorThrown) { 
-        	//alert("Status: " + textStatus); alert("Error: " + errorThrown); 
-        	console.log("error");
-    	}
+
+function fetchUserData(url, tabId, sendResponse) {
+	$.ajax({
+		type: "GET",
+		dataType: 'json',
+		url: url,
+		success: function(data){
+			if(data.length > 0){
+				localStorage.setItem("personalData", JSON.stringify(data));
+				chrome.tabs.sendMessage(tabId, {from: "background", data: data});
+				sendResponse({"userData": data});
+			}
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			console.log("error " + textStatus);
+		}
 	});
-  }else if(msg.from==="restart" && (msg.tabId)){
-  	chrome.tabs.sendMessage(msg.tabId, {from: "restart"});
-  }else if(msg.from=="content" && msg.data){
-		console.log(msg.data);
+}
+
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+  if (msg.from === 'popup' && msg.tabId && msg.url) {
+		fetchUserData(msg.url, msg.tabId, sendResponse);
+  } else if (msg.from === "restart" && msg.tabId) {
+  	chrome.tabs.sendMessage(msg.tabId, { from: "restart" });
+  } else if (msg.from === "content" && msg.data) {
 		var missing_data = localStorage.getItem("missing_data");
-		console.log(missing_data);
-		if(msg.data.length){
-			if(missing_data){
+		if (msg.data.length) {
+			if (missing_data) {
 				var firstData = JSON.parse(missing_data);
 				var new_Data = [];
-				for(var i in firstData){
+				for (var i in firstData) {
 					 var shared = false;
 					 for (var j in msg.data)
 							 if (msg.data[j].interaction == firstData[i].interaction) {
@@ -52,6 +52,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender,sendResponse) {
 			}
 		}
   }
+
+	return true;
 });
-
-
