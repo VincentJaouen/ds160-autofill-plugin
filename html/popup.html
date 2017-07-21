@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>DS160 Auto Fill Plugin</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="../css/popup.css" rel="stylesheet">
+
+</head>
+
+<body>
+	<!--div class="search-background">
+		<img src="https://lh4.googleusercontent.com/-T4pmKmAS5D4/U0uihfPzEZI/AAAAAAAAA2c/sN0mjJS2bx4/w957-h374-no/141.jpg">
+	</div-->
+	<div class="well-searchbox">
+		<form class="form-horizontal" data-toggle="validator" role="form">
+				<div class="form-group text-center">
+						<h1>DS160 Auto Fill</h1>
+				</div>
+				<div id="submit_container">
+					<div class="form-group">
+							<label class="col-md-4 control-label">User ID</label>
+							<div class="col-md-4">
+									<input type="text" id="user_id" class="form-control" required placeholder="User ID">
+							</div>
+					</div>
+					<div class="text-center">
+						<button id="btn_submit" type="button" class="btn btn-success">Submit</button>
+						<button id="btn_stop" type="button" class="btn btn-success btn-stop">Stop</button>
+						<button id="btn_restart" type="button" class="btn btn-success btn-stop">Restart</button>
+						<button id="btn_csv" type="button" class="btn btn-success">Download CSV</button>
+					</div>
+				</div>
+				<div class="container">
+				  <div class="row">
+				      <div class="panel panel-default">
+				        <div class="panel-heading">
+				          <h4>
+				            Missing Data Result
+				          </h4>
+				        </div>
+				        <table id="tbl_results" class="table table-fixed">
+				          <thead>
+				            <tr>
+				              <th class="w-5">Interaction Name</th><th class="w-5">Example Value</th>
+				            </tr>
+				          </thead>
+				          <tbody>
+				          </tbody>
+				        </table>
+				      </div>
+				  </div>
+				</div>
+		</form>
+	</div>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
+		<script src="../js/popup.js"></script>
+</body>
+</html>

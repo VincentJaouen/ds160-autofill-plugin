@@ -1,0 +1,104 @@
+html, body{
+  height: 100%;
+  width: 400px;
+}
+.search-background img {
+    width: 100%;
+}
+.well-searchbox {
+  
+  padding: 5px;
+  width:100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.well-searchbox #submit_container {
+	display:none;
+}
+.well-searchbox #submit_container div:first-child{
+	margin:0;
+}
+.well-searchbox #submit_container div:last-child{
+	margin-bottom: 14px;
+}
+
+
+.well-searchbox label {
+    color: #fff;
+}
+.well-searchbox h1{
+  color: #3897f0;
+}
+.well-searchbox .container {
+	display: none;
+  width:90%;
+  margin-bottom: 0px;
+  border:0;
+  margin-top:18px;
+}
+.well-searchbox .container .panel-heading{
+  background-color: #5cb85c;
+}
+
+.well-searchbox .container .table-fixed thead {
+  width: 97%;
+}
+.well-searchbox .container .table-fixed tbody {
+  overflow-x: hidden;
+  display:block;
+  height: 265px;
+  overflow-y: auto;
+  width: 100%;
+  overflow-x: auto;
+}
+.well-searchbox  .container .table-fixed thead, .table-fixed tbody, .table-fixed tr, .table-fixed td, .table-fixed th {
+}
+.well-searchbox .container .table-fixed tbody td, .table-fixed thead > tr> th {
+  border-bottom-width: 0;
+}
+#tbl_results .w-1{
+  width: 10%;
+}
+#tbl_results .w-2{
+  width: 20%;
+}
+#tbl_results .w-3{
+  width: 30%;
+}
+#tbl_results img.embed-img{
+  width: 50px;
+  height: 50px;
+}
+
+#tbl_results thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+#tbl_results thead {
+    width: calc( 100% - 1em )
+}
+#tbl_results thead .follow-head{
+  cursor: pointer;
+}
+#tbl_results td {
+  /*white-space:nowrap;*/
+  /*white-space:pre;*/
+  word-wrap: break-word;         /* All browsers since IE 5.5+ */
+  overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+  width: 100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.well-searchbox label.form-check-label {
+    text-align: left;
+}
+.btn-stop{
+	display:none;
+}
