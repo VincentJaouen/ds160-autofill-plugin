@@ -8,7 +8,7 @@ function stopForm(callback) {
   chrome.storage.local.clear(callback);
 }
 
-function ifStarted(startedCallback, stoppedCallback) {+
+function ifStarted(startedCallback, stoppedCallback) {
   getStoredObjects(USER_DATA, function(data) {
     if (data && data.length > 0) {
       // Call first callback if data is stored
