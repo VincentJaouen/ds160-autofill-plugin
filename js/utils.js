@@ -20,6 +20,15 @@ function ifStarted(startedCallback, stoppedCallback) {
   });
 }
 
+function checkBox(boxName) {
+  // $('input[id$="' + boxName +'"]').prop("checked", true);
+  $('label[for$="' + boxName + '"]').click();
+}
+
+function fillTextInput(inputName, value) {
+  $('input[name$="' + inputName + '"]').val(value);
+}
+
 function setSelectValue(selectId, value) {
   var selector = 'select[id$="' + selectId + '"]';
   $(selector).find('option').each(function(){

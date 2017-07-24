@@ -4,6 +4,18 @@ function clickNext() {
   }, 2000);
 }
 
+function clickContinue() {
+  setTimeout(function(){
+    $('input[name$="btnContinue"]').click();
+  }, 1000);
+}
+
+function fillOutPageSecureQuestion(personalData) {
+  $('input[name$="txtAnswer"]').val('OLIVER');
+
+  return false;
+}
+
 function fillOutPagePersonal1(personalData) {
   var first_name = false, last_name =false,gender =false,marital_status =false,city_of_birth =false,state_of_birth =false,country_of_birth =false,DOB =false,alias_yn =false,telecode_yn =false;
   for(var i in personalData) {
@@ -2819,4 +2831,48 @@ function fillOutPageExchangeVisitor3(personalData) {
     missing_obj[i]['value']='N0123456789';
     i++
   }
+}
+
+function fillOutPageReviewPersonal(personalData) {
+  return true;
+}
+
+function fillOutPageReviewTravel(personalData) {
+  return true;
+}
+
+function fillOutPageReviewUSContact(personalData) {
+  return true;
+}
+
+function fillOutPageReviewFamily(personalData) {
+  return true;
+}
+
+function fillOutPageReviewWorkEducation(personalData) {
+  return true;
+}
+
+function fillOutPageReviewSecurity(personalData) {
+  return true;
+}
+
+function fillOutPageReviewLocation(personalData) {
+  return true;
+}
+
+function fillOutPageSignCertify(personalData) {
+  checkBox("rblPREP_IND_0");
+
+  setTimeout(function(){
+    checkBox("PREP_NAME_NA");
+    fillTextInput("PREP_ORGANIZATION", 'OLIVER VISAS');
+    fillTextInput("PREP_ADDR_LN1", "456 JOHNSON AVENUE");
+    fillTextInput("PREP_ADDR_LN2", "STUDIO 200");
+    fillTextInput("PREP_ADDR_CITY", "Brooklyn");
+    fillTextInput("PREP_ADDR_STATE", "New York");
+    fillTextInput("PREP_ADDR_POSTAL_CD", "11237");
+    setSelectValue("ddlCountry", "UNITED STATES OF AMERICA");
+    fillTextInput("PREP_REL_TO_APP", "CONSULTANT");
+  }, 1000);
 }
