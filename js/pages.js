@@ -18,93 +18,60 @@ function fillOutPageSecureQuestion(personalData) {
 
 function fillOutPagePersonal1(personalData) {
   var first_name = false, last_name =false,gender =false,marital_status =false,city_of_birth =false,state_of_birth =false,country_of_birth =false,DOB =false,alias_yn =false,telecode_yn =false;
+  var firstNameValue = '', lastNameValue = '';
   for(var i in personalData) {
-    if(personalData[i].interaction=="first_name"){
-      $('input[name$="APP_GIVEN_NAME"]').val(personalData[i].value.latinize());
-      var fullName = $('input[name$="APP_FULL_NAME_NATIVE"]').val();
-      console.log('first name : ' + fullName);
-      $('input[name$="APP_FULL_NAME_NATIVE"]').val(personalData[i].value.latinize() + ' ' + fullName);
+    var interaction = personalData[i].interaction;
+    var value = personalData[i].value;
+    if(interaction == "first_name") {
+      fillTextInput("APP_GIVEN_NAME", value);
+      firstNameValue = value;
+      fillTextInput("APP_FULL_NAME_NATIVE", firstNameValue + ' ' + lastNameValue);
       first_name = true;
     }
-    if(personalData[i].interaction=="last_name"){
-      $('input[name$="APP_SURNAME"]').val(personalData[i].value.latinize());
-      var fullName = $('input[name$="APP_FULL_NAME_NATIVE"]').val();
-      console.log('last name : ' + fullName);
-      $('input[name$="APP_FULL_NAME_NATIVE"]').val(fullName+' '+ personalData[i].value.latinize());
+    if(interaction == "last_name") {
+      fillTextInput("APP_SURNAME", value);
+      lastNameValue = value;
+      fillTextInput("APP_FULL_NAME_NATIVE", firstNameValue + ' ' + lastNameValue);
       last_name = true;
     }
-    if(personalData[i].interaction=="gender"){
-      if(personalData[i].value=="male"){
-        $('input[id$="APP_GENDER_0"]').prop("checked", true);
-      }else{
-        $('input[id$="APP_GENDER_1"]').prop("checked", true);
+    if(interaction == "gender") {
+      if (value == "male") {
+        checkBox("APP_GENDER_0");
+      } else {
+        checkBox("APP_GENDER_1");
       }
       gender = true;
     }
-    if(personalData[i].interaction=="marital_status"){
-
-      var marital = personalData[i].value.toUpperCase().trim();
-      if(marital=="COMMON LAW MARRIED") marital = "COMMON LAW MARRIAGE"
-      $('select[id$="APP_MARITAL_STATUS"]').find('option').each(function(){
-        if($(this).text()==marital){
-          $('select[id$="APP_MARITAL_STATUS"]').val($(this).val());
-          $('select[id$="APP_MARITAL_STATUS"]').change();
-        }
-        marital_status = true;
-      });
+    if(interaction == "marital_status") {
+      var marital = value.toUpperCase().trim();
+      if (marital == "COMMON LAW MARRIED") {
+        marital = "COMMON LAW MARRIAGE";
+      }
+      marital_status = setSelectValue("APP_MARITAL_STATUS", marital);
     }
-    if(personalData[i].interaction=="city_of_birth"){
-      $('input[name$="APP_POB_CITY"]').val(personalData[i].value);
+    if(interaction == "city_of_birth") {
+      fillTextInput("APP_POB_CITY", value);
       city_of_birth = true;
     }
-    if(personalData[i].interaction=="state_of_birth"){
-      $('input[name$="APP_POB_ST_PROVINCE"]').val(personalData[i].value);
+    if (interaction=="state_of_birth") {
+      fillTextInput("APP_POB_ST_PROVINCE", value);
       state_of_birth = true
     }
-    if(personalData[i].interaction=="country_of_birth"){
-      var country = personalData[i].value.toUpperCase().trim();
-      $('select[id$="APP_POB_CNTRY"]').find('option').each(function(){
-        if($(this).text()==country){
-          $('select[id$="APP_POB_CNTRY"]').val($(this).val());
-          $('select[id$="APP_POB_CNTRY"]').change();
-        }
-      });
+    if (interaction == "country_of_birth") {
+      var country = value.toUpperCase().trim();
+      setSelectValue("APP_POB_CNTRY", country);
       country_of_birth = true;
     }
-    if(personalData[i].interaction=="DOB"){
-      var birth_date = personalData[i].value.split("/");
-      //console.log(birth_date);
-      var birth_day = birth_date[0];
-      $('select[id$="DOBDay"]').find('option').each(function(){
-        if($(this).text()==birth_day){
-          $('select[id$="DOBDay"]').val($(this).val());
-          $('select[id$="DOBDay"]').change();
-        }
-      });
-      var birth_month = birth_date[1];
-      $('select[id$="DOBMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(birth_month)){
-          $('select[id$="DOBMonth"]').val($(this).val());
-          $('select[id$="DOBMonth"]').change();
-        }
-      });
-      $('input[name$="DOBYear"]').val(birth_date[2]);
+    if (interaction == "DOB") {
+      setDate("DOB", value);
       DOB = true;
     }
-    if(personalData[i].interaction=="alias_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="OtherNames_1"]').prop("checked", true);
-      }else{
-        $('input[id$="OtherNames_0"]').prop("checked", true);
-      }
+    if(interaction == "alias_yn") {
+      checkYesNo("OtherNames", value);
       alias_yn = true;
     }
-    if(personalData[i].interaction=="telecode_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="TelecodeQuestion_1"]').prop("checked", true);
-      }else{
-        $('input[id$="TelecodeQuestion_0"]').prop("checked", true);
-      }
+    if(interaction == "telecode_yn") {
+      checkYesNo("TelecodeQuestion", value);
       telecode_yn = true;
     }
   }
@@ -195,46 +162,31 @@ function fillOutPagePersonal1(personalData) {
 }
 
 function fillOutPagePersonal2(personalData) {
-  var nationality = false,othernationindenty_yn=false,othercountryindenty_yn=false,national_id=false,socialsecuritynumber=false,taxidnumber=false;
+  var nationality = false,othernationality_yn=false,other_residence_yn=false,national_id=false,ssn=false,taxidnumber=false;
   for(var i in personalData){
     if(personalData[i].interaction=="nationality"){
-      var country = personalData[i].value.toUpperCase().trim();
-      //console.log(country);
-      $('select[id$="APP_NATL"]').find('option').each(function(){
-        if($(this).text()==country){
-          $('select[id$="APP_NATL"]').val($(this).val());
-          $('select[id$="APP_NATL"]').change();
-        }
-      });
+      setSelectValue("ddlAPP_NATL", personalData[i].value);
       nationality = true;
     }
-    if(personalData[i].interaction=="othernationindenty_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="APP_OTH_NATL_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="APP_OTH_NATL_IND_0"]').prop("checked", true);
-      }
-      othernationindenty_yn = true;
+    if(personalData[i].interaction=="othernationality_yn"){
+      checkYesNo("APP_OTH_NATL_IND", personalData[i].value);
+      othernationality_yn = true;
     }
-    if(personalData[i].interaction=="othercountryindenty_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="PermResOtherCntryInd_1"]').prop("checked", true);
-      }else{
-        $('input[id$="PermResOtherCntryInd_0"]').prop("checked", true);
-      }
-      othercountryindenty_yn = true;
+    if(personalData[i].interaction=="other_residence_yn"){
+      checkYesNo("PermResOtherCntryInd", personalData[i].value);
+      other_residence_yn = true;
     }
     if(personalData[i].interaction=="national_id"){
-      //console.log(personalData[i].value.trim().replaceAll(".","").replaceAll("-",""));
-      $('input[name$="APP_NATIONAL_ID"]').val(personalData[i].value.trim().replaceAll(".","").replaceAll("-","").replaceAll("/",""));
-      national_id = true
+      fillTextInput("APP_NATIONAL_ID", personalData[i].value.trim().replaceAll(".","").replaceAll("-","").replaceAll("/",""));
+      // $('input[name$="APP_NATIONAL_ID"]').val(personalData[i].value.trim().replaceAll(".","").replaceAll("-","").replaceAll("/",""));
+      national_id = true;
     }
-    if(personalData[i].interaction=="socialsecuritynumber"){
-      var ssl_number = personalData[i].value.split("-");
-      $('input[name$="APP_SSN1"]').val(ssl_number[0]);
-      $('input[name$="APP_SSN1"]').val(ssl_number[1]);
-      $('input[name$="APP_SSN1"]').val(ssl_number[2]);
-      socialsecuritynumber = true
+    if(personalData[i].interaction=="ssn"){
+      var ssn_number = personalData[i].value.split("-");
+      fillTextInput("APP_SSN1", ssl_number[0]);
+      fillTextInput("APP_SSN2", ssl_number[1]);
+      fillTextInput("APP_SSN3", ssl_number[2]);
+      ssn = true
     }
     if(personalData[i].interaction=="taxidnumber"){
       $('input[name$="APP_TAX_ID"]').val(personalData[i].value);
@@ -251,30 +203,35 @@ function fillOutPagePersonal2(personalData) {
     missing_obj[i]['value']="Albania/Algeria/American";
     i++
   }
-  if(!othernationindenty_yn){
-    $('input[id$="APP_OTH_NATL_IND_1"]').prop("checked", true);
+  if(!othernationality_yn){
+    checkBox("APP_OTH_NATL_IND_1");
+    // $('input[id$="APP_OTH_NATL_IND_1"]').prop("checked", true);
     missing_obj[i] = {}
     missing_obj[i] = {}
-    missing_obj[i]['interaction']="othernationindenty_yn";
+    missing_obj[i]['interaction']="othernationality_yn";
     missing_obj[i]['value']="FERNANDEZ";
     i++
   }
-  if(!othercountryindenty_yn){
-    missing_obj[i] = {}
-    $('input[id$="PermResOtherCntryInd_1"]').prop("checked", true);
-    missing_obj[i] = {}
+  if(!other_residence_yn){
+    missing_obj[i] = {};
+    checkBox("PermResOtherCntryInd_1");
+    // $('input[id$="PermResOtherCntryInd_1"]').prop("checked", true);
+    missing_obj[i] = {};
     missing_obj[i]['interaction']="othercountryindenty_yn";
     missing_obj[i]['value']="Yes/No";
     i++
   }
   if(!national_id){
-    $('input[id$="APP_NATIONAL_ID_NA"]').prop("checked", true);
+    console.log('no national id');
+    console.log(national_id);
+    checkBox("APP_NATIONAL_ID_NA");
+    // $('input[id$="APP_NATIONAL_ID_NA"]').prop("checked", true);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="national_id";
     missing_obj[i]['value']="123456789";
     i++
   }
-  if(!socialsecuritynumber){
+  if(!ssn){
     $('input[id$="APP_SSN_NA"]').prop("checked", true);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="socialsecuritynumber";
@@ -293,68 +250,29 @@ function fillOutPagePersonal2(personalData) {
 function fillOutPageAddressPhone(personalData) {
   var user_address = false,same_mailing_address_yn=false,phone_number=false,second_phone_number=false,work_phone_number=false,user_email=false;
   for(var i in personalData){
-    if(personalData[i].interaction=="user_address"){
-      //console.log(personalData[i].value.trim());
-      var address = JSON.parse(personalData[i].value.trim());
-      ////console.log(address);
-      if(address['street'].trim() && address['street'].trim()!=""){
-        $('input[name$="APP_ADDR_LN1"]').val(address['street'].trim());
-      }else{
-        $('input[name$="APP_ADDR_LN1"]').val("street");
-      }
-      $('input[name$="APP_ADDR_LN2"]').val(address['line2'].trim());
-      if(address['city'].trim() && address['city'].trim()!=""){
-        $('input[name$="APP_ADDR_CITY"]').val(address['city'].trim());
-      }else{
-        $('input[name$="APP_ADDR_CITY"]').val("city");
-      }
-      if(address['zip']){
-        $('input[name$="APP_ADDR_POSTAL_CD"]').val(address['zip']);
-      }else{
-        $('input[id$="APP_ADDR_POSTAL_CD_NA"]').prop("checked", true);
-      }
-      if(address['state']){
-        $('input[name$="APP_ADDR_STATE"]').val(address['state']);
-      }else{
-        $('input[id$="APP_ADDR_STATE_NA"]').prop("checked", true);
-      }
-      var country_status = false;
-      $('select[id$="ddlCountry"]').find('option').each(function(){
-        if($(this).text()==address['country'].toUpperCase().trim()){
-          $('select[id$="ddlCountry"]').val($(this).val());
-          $('select[id$="ddlCountry"]').change();
-          country_status=true;
-        }
-      });
-      if(!country_status){
-        $('select[id$="ddlCountry"]').val("ARG");
-        $('select[id$="ddlCountry"]').change();
-      }
-      user_address = true;
+    var interaction = personalData[i].interaction, value = personalData[i].value;
+    if (interaction == "user_address") {
+      user_address = setAddressValue("APP_ADDR", value);
     }
-    if(personalData[i].interaction=="same_mailing_address_yn"){
-      if(personalData[i].value=="Yes"){
-        $('input[id$="MailingAddrSame_0"]').prop("checked", true);
-      }else{
-        $('input[id$="MailingAddrSame_1"]').prop("checked", true);
-      }
+    if(interaction == "same_mailing_address_yn") {
+      checkYesNo("MailingAddrSame", value);
       same_mailing_address_yn = true;
     }
 
-    if(personalData[i].interaction=="phone_number"){
-      $('input[name$="APP_HOME_TEL"]').val(personalData[i].value.replaceAll("(","").replaceAll(")","").replaceAll("-","").replaceAll("+",""));
+    if(interaction == "phone_number"){
+      fillTextInput("APP_HOME_TEL", value.numerize());
       phone_number = true;
     }
-    if(personalData[i].interaction=="second_phone_number"){
-      $('input[name$="APP_MOBILE_TEL"]').val(personalData[i].value.replaceAll("(","").replaceAll(")","").replaceAll("-","").replaceAll("+",""));
+    if(interaction == "second_phone_number") {
+      fillTextInput("APP_MOBILE_TEL", value.numerize());
       second_phone_number = true;
     }
-    if(personalData[i].interaction=="work_phone_number"){
-      $('input[name$="APP_BUS_TEL"]').val(personalData[i].value.replaceAll("(","").replaceAll(")","").replaceAll("-","").replaceAll("+",""));
+    if(interaction == "work_phone_number") {
+      fillTextInput("APP_BUS_TEL", value.numerize());
       work_phone_number = true;
     }
-    if(personalData[i].interaction=="user_email"){
-      $('input[name$="APP_EMAIL_ADDR"]').val(personalData[i].value);
+    if(interaction == "user_email"){
+      fillTextInput("APP_EMAIL_ADDR", value);
       user_email = true;
     }
   }
@@ -1267,8 +1185,6 @@ function fillOutPageSpouse(personalData) {
     if(personalData[i].interaction=="spouse_birth_city"){
       $('input[name$="SpousePOBCity"]').val(personalData[i].value);
       spouse_birth_city = true;
-    }else{
-      $('input[id$="SPOUSE_POB_CITY_NA"]').prop("checked", true);
     }
     if(personalData[i].interaction=="spouse_birth_country"){
       var country = personalData[i].value.toUpperCase().trim();
@@ -1601,12 +1517,13 @@ function fillOutPageWorkEducation1(personalData) {
   }
   for(var i in personalData){
     if(personalData[i].interaction=="occupation"){
-      $('select[id$="PresentOccupation"]').find('option').each(function(){
-        if($(this).text().toUpperCase().indexOf(personalData[i].value.toUpperCase())!=-1){
-          $('select[id$="PresentOccupation"]').val($(this).val());
-          $('select[id$="PresentOccupation"]').change();
-        }
-      });
+      findInSelect("PresentOccupation", personalData[i].value);
+      // $('select[id$="PresentOccupation"]').find('option').each(function(){
+      //   if($(this).text().toUpperCase().indexOf(personalData[i].value.toUpperCase())!=-1){
+      //     $('select[id$="PresentOccupation"]').val($(this).val());
+      //     $('select[id$="PresentOccupation"]').change();
+      //   }
+      // });
       occupation = true;
     }
     if(personalData[i].interaction=="occupation_other_explain"){
@@ -1614,16 +1531,18 @@ function fillOutPageWorkEducation1(personalData) {
       occupation_other_explain = true;
     }
     if(personalData[i].interaction=="employer_school_name"){
-      $('input[name$="EmpSchName"]').val(personalData[i].value);
+      fillTextInput("EmpSchName", personalData[i].value);
+      // $('input[name$="EmpSchName"]').val(personalData[i].value);
       employer_school_name = true;
     }
     if(personalData[i].interaction=="employer_name"){
-      console.log(personalData[i]);
-      $('input[name$="EmpSchName"]').val(personalData[i].value);
+      fillTextInput("EmpSchName", personalData[i].value);
+      // $('input[name$="EmpSchName"]').val(personalData[i].value);
       employer_school_name = true;
     }
     if(personalData[i].interaction=="employer_number"){
-      $('input[name$="WORK_EDUC_TEL"]').val(personalData[i].value.numerize());
+      fillTextInput("WORK_EDUC_TEL", personalData[i].value.numerize());
+      // $('input[name$="WORK_EDUC_TEL"]').val(personalData[i].value.numerize());
       employer_number = true;
     }
     if(personalData[i].interaction=="employer_address"){
@@ -1631,51 +1550,42 @@ function fillOutPageWorkEducation1(personalData) {
       var address = JSON.parse(personalData[i].value.trim());
       ////console.log(address);
       if(address['street'].trim() && address['street'].trim()!=""){
-        $('input[name$="EmpSchAddr1"]').val(address['street'].trim());
-      }else{
-        $('input[name$="EmpSchAddr1"]').val("street");
+        fillTextInput("EmpSchAddr1", address['street'].trim());
+        // $('input[name$="EmpSchAddr1"]').val(address['street'].trim());
+      } else {
+        fillTextInput("EmpSchAddr1", "MISSING");
       }
-      $('input[name$="EmpSchAddr2"]').val(address['line2'].trim());
-      $('input[name$="EmpSchCity"]').val(address['city'].trim());
+      fillTextInput("EmpSchAddr2", address['line2'].trim());
+      fillTextInput("EmpSchCity", address['city'].trim());
       if(address['city'].trim() && address['city'].trim()!=""){
-        $('input[name$="EmpSchCity"]').val(address['city'].trim());
-      }else{
-        $('input[name$="EmpSchCity"]').val("city");
+        fillTextInput("EmpSchCity", address['city'].trim());
+      } else {
+        fillTextInput("EmpSchCity", "MISSING");
       }
       if(address['zip'] && address['zip'].trim()!=""){
-        $('input[name$="WORK_EDUC_ADDR_POSTAL_CD"]').val(address['zip']);
-      }else{
-        $('input[id$="WORK_EDUC_ADDR_POSTAL_CD_NA"]').prop("checked", true);
+        fillTextInput("WORK_EDUC_ADDR_POSTAL_CD", address['zip']);
+      } else {
+        checkBox("WORK_EDUC_ADDR_POSTAL_CD_NA");
       }
       if(address['state']){
-        $('input[name$="WORK_EDUC_ADDR_STATE"]').val(address['state']);
-      }else{
-        $('input[id$="WORK_EDUC_ADDR_STATE_NA"]').prop("checked", true);
+        fillTextInput("WORK_EDUC_ADDR_STATE", address['state']);
+      } else {
+        checkBox("WORK_EDUC_ADDR_STATE_NA");
       }
-      var country_status = false;
-      $('select[id$="EmpSchCountry"]').find('option').each(function(){
-        if($(this).text()==address['country'].toUpperCase().trim()){
-          $('select[id$="EmpSchCountry"]').val($(this).val());
-          $('select[id$="EmpSchCountry"]').change();
-          country_status=true;
-        }
-      });
-      if(!country_status){
-        $('select[id$="EmpSchCountry"]').val("ARG");
-        $('select[id$="EmpSchCountry"]').change();
+
+      if(!findInSelect("EmpSchCountry", address['country'])){
+        setSelectValue("EmpSchCountry", "ARG");
       }
       if(address['phone_number']){
-        $('input[name$="WORK_EDUC_TEL"]').val(address['phone_number']);
-      }else{
-        $('input[name$="WORK_EDUC_TEL"]').val("123456789");
+        fillTextInput("WORK_EDUC_TEL", address['phone_number'].numerize());
+      } else {
+        fillTextInput("WORK_EDUC_TEL", "000000000");
       }
       employer_address = true;
     }
-    if(personalData[i].interaction=="current_monthly_income"){
-      $('input[name$="CURR_MONTHLY_SALARY"]').val(personalData[i].value);
+    if(personalData[i].interaction=="current_monthly_income") {
+      fillTextInput("CURR_MONTHLY_SALARY", personalData[i].value.numerize());
       current_monthly_income = true;
-    }else{
-      $('input[id$="CURR_MONTHLY_SALARY_NA"]').prop("checked", true);
     }
     if(personalData[i].interaction=="employer_duties"){
       $('textarea[name$="DescribeDuties"]').text(personalData[i].value);

@@ -5,7 +5,7 @@ function fillForm(data) {
   if (match.length > 0 && match[0]) {
     var parameter = match[0].split('=')[1];
     var callbackName = 'fillOutPage' + parameter;
-    console.log(callbackName);
+
     // If function is found for this page, call it
     var fn = window[callbackName];
     if(typeof fn === 'function') {
