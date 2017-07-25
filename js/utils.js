@@ -20,32 +20,12 @@ function ifStarted(startedCallback, stoppedCallback) {
   });
 }
 
-function checkBox(boxName) {
-  // $('input[id$="' + boxName +'"]').prop("checked", true);
-  $('label[for$="' + boxName + '"]').click();
-}
-
-function fillTextInput(inputName, value) {
-  $('input[name$="' + inputName + '"]').val(value);
-}
-
-function setSelectValue(selectId, value) {
-  var selector = 'select[id$="' + selectId + '"]';
-  $(selector).find('option').each(function(){
-    if($(this).text() == value || $(this).text() == value.toUpperCase().trim()) {
-      $(selector).val($(this).val());
-      $(selector).change();
-      // If value is found, return true
-      return true;
-    }
-  });
-  return false;
-}
-
 function storeObject(key, objectToStore, callback) {
   var stored = {};
   stored[key] = objectToStore;
-  chrome.storage.local.set(stored, callback);
+  chrome.storage.local.set(stored, function() {
+    callback(objectToStore);
+  });
 }
 
 function getStoredObjects(keys, callback) {
