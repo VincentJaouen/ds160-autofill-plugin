@@ -34,6 +34,19 @@ function getStoredObjects(keys, callback) {
   });
 }
 
+function formatData(personalData) {
+  var formatted = {};
+
+  for(var i in personalData) {
+    var interaction = personalData[i].interaction;
+    var value = personalData[i].value;
+
+    formatted[interaction] = value;
+  }
+
+  return formatted;
+}
+
 function syncStore(key, objectToStore, callback) {
     var jsonstr = JSON.stringify(objectToStore);
     var i = 0;
@@ -76,10 +89,8 @@ function getStore(key, callback) {
 	});
 }
 
-String.prototype.numerize = function () {
-  return this.replace(/[^0-9\.]+/g, ''); // replace all leading non-digits with nothing
-}
-
+String.prototype.alphanumerize = function() { return this.replace(/[^A-Za-z0-9\s\.]+/g, ''); }
+String.prototype.numerize = function () { return this.replace(/[^0-9\.]+/g, ''); }
 var Latinise={};Latinise.latin_map={"Á":"A",
 	"Ă":"A",
 	"Ắ":"A",

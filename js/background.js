@@ -33,8 +33,6 @@ function getAPIUrl(userId) {
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.from === 'popup' && msg.tabId && msg.userId) {
 		fetchUserData(msg.userId, msg.tabId, sendResponse);
-  } else if (msg.from === "restart" && msg.tabId) {
-  	chrome.tabs.sendMessage(msg.tabId, { from: "restart" });
   } else if (msg.from === "content" && msg.data) {
 		var missing_data = localStorage.getItem("missing_data");
 		if (msg.data.length) {
