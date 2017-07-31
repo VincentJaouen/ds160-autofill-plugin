@@ -144,35 +144,35 @@ function fillOutPageExchangeVisitor3(personalData) {
 
 }
 
-function fillOutPageReviewPersonal(personalData) {
+function fillOutPageReviewPersonalOld(personalData) {
   clickContinue();
 }
 
-function fillOutPageReviewTravel(personalData) {
+function fillOutPageReviewTravelOld(personalData) {
   clickContinue();
 }
 
-function fillOutPageReviewUSContact(personalData) {
+function fillOutPageReviewUSContactOld(personalData) {
   clickContinue();
 }
 
-function fillOutPageReviewFamily(personalData) {
+function fillOutPageReviewFamilyOld(personalData) {
   clickContinue();
 }
 
-function fillOutPageReviewWorkEducation(personalData) {
+function fillOutPageReviewWorkEducationOld(personalData) {
   clickContinue();
 }
 
-function fillOutPageReviewSecurity(personalData) {
+function fillOutPageReviewSecurityOld(personalData) {
   clickContinue();
 }
 
-function fillOutPageReviewLocation(personalData) {
+function fillOutPageReviewLocationOld(personalData) {
   clickContinue();
 }
 
-function fillOutPageSignCertify(personalData) {
+function fillOutPageSignCertifyOld(personalData) {
   checkBox("rblPREP_IND_0");
 
   setTimeout(function(){

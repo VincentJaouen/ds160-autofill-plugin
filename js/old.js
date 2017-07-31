@@ -1,10 +1,12 @@
 DEFAULT_TEXT = "MISSING";
-DEFAULT_ADDRESS = {"street":"MISSING","line2":"","zip":"00000","city":"MISSING","country":"Argentina"}
+DEFAULT_ADDRESS = '{"street":"MISSING","line2":"","zip":"00000","city":"MISSING","country":"Argentina"}';
+DEFAULT_US_ADDRESS = '{"street":"MISSING","line2":"","zip":"00000","city":"MISSING","state":"AL","country":"Argentina"}';
 DEFAULT_NUMBER = "0000000000";
 DEFAULT_SMALL_NUMBER = "00000";
 DEFAULT_PAST_DATE = "01/01/2014";
 DEFAULT_FUTURE_DATE = "01/01/2025";
 DEFAULT_COUNTRY = "ARGENTINA";
+DEFAULT_RELATIONSHIP = "O";
 
 function fillOutPagePersonal1Old(personalData) {
   var first_name = false, last_name =false,gender =false,marital_status =false,city_of_birth =false,state_of_birth =false,country_of_birth =false,DOB =false,alias_yn =false,telecode_yn =false;
@@ -17,13 +19,13 @@ function fillOutPagePersonal1Old(personalData) {
     if(interaction == "first_name") {
       fillTextInput("APP_GIVEN_NAME", value);
       firstNameValue = value;
-      fillTextInput("APP_FULL_NAME_NATIVE", firstNameValue.trim() + ' ' + lastNameValue.trim(), false);
+      fillTextInput("APP_FULL_NAME_NATIVE", firstNameValue.trim() + ' ' + lastNameValue.trim(), false, false);
       first_name = true;
     }
     if(interaction == "last_name") {
       fillTextInput("APP_SURNAME", value);
       lastNameValue = value;
-      fillTextInput("APP_FULL_NAME_NATIVE", firstNameValue.trim() + ' ' + lastNameValue.trim(), false);
+      fillTextInput("APP_FULL_NAME_NATIVE", firstNameValue.trim() + ' ' + lastNameValue.trim(), false, false);
       last_name = true;
     }
     if(interaction == "gender") {
@@ -246,6 +248,9 @@ function fillOutPageAddressPhoneOld(personalData) {
     if(interaction == "user_email"){
       user_email = fillTextInput("APP_EMAIL_ADDR", value);
     }
+    if(interaction == "mailing_address") {
+      setAddressValue("MAILING_ADDR", value);
+    }
   }
   var missing_obj = [];
   var i =0;
@@ -301,7 +306,7 @@ function fillOutPagePptVisaOld(personalData) {
       passport_type = setSelectValue("PPT_TYPE", value);
     }
     if (interaction == "passport_number") {
-      passport_number = fillNumberInput("PPT_NUM", value);
+      passport_number = fillTextInput("PPT_NUM", value);
     }
     if (interaction == "passport_book_number") {
       passport_book_number = fillNumberInput("PPT_BOOK_NUM", value);
@@ -442,7 +447,7 @@ function fillOutPageTravelOld(personalData) {
       time_in_country = fillNumberInput("TRAVEL_LOS", value);
     }
     if(interaction == "time_in_country_frame") {
-      time_in_country_frame = setSelectValue("TRAVEL_LOS_CD", value);
+      time_in_country_frame = findInSelect("TRAVEL_LOS_CD", value);
     }
   }
   var missing_obj = [];
@@ -512,7 +517,7 @@ function fillOutPageTravelOld(personalData) {
     i++
   }
   if(!time_in_country_frame) {
-    setSelectValue("TRAVEL_LOS_CD", "W");
+    setSelectValue("TRAVEL_LOS_CD", "D");
     missing_obj[i] = {}
     missing_obj[i]['interaction'] = "time_in_country_frame";
     missing_obj[i]['value'] = 'Day/Month/Year';
@@ -577,235 +582,142 @@ function fillOutPagePreviousUSTravelOld(personalData) {
     var interaction = personalData[i].interaction, value = personalData[i].value;
 
     if(interaction == "ustravel_yn"){
-      if(personalData[i].value=="Yes"){
-        $('input[id$="PREV_US_TRAVEL_IND_0"]').prop("checked", true);
-      }else{
-        $('input[id$="PREV_US_TRAVEL_IND_1"]').prop("checked", true);
-      }
-      ustravel_yn = true;
+      ustravel_yn = checkYesNo("PREV_US_TRAVEL_IND", value);
     }
     if(interaction == "previous_ustrip_date"){
-      var us_date = personalData[i].value.split("/");
-      //console.log(us_date);
-      var us_day = us_date[0];
-      $('select[id$="PREV_US_VISIT_DTEDay"]').find('option').each(function(){
-        if($(this).text()==us_day){
-          $('select[id$="PREV_US_VISIT_DTEDay"]').val($(this).val());
-          $('select[id$="PREV_US_VISIT_DTEDay"]').change();
-        }
-      });
-      var us_month = us_date[1];
-      $('select[id$="PREV_US_VISIT_DTEMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(us_month)){
-          $('select[id$="PREV_US_VISIT_DTEMonth"]').val($(this).val());
-          $('select[id$="PREV_US_VISIT_DTEMonth"]').change();
-        }
-      });
-      $('input[name$="PREV_US_VISIT_DTEYear"]').val(us_date[2]);
-      previous_ustrip_date = true;
+      previous_ustrip_date = setDate("PREV_US_VISIT", value);
     }
     if(interaction == "previous_ustrip_duration"){
       var trip_date = personalData[i].value.split(" ");
-      $('input[name$="PREV_US_VISIT_LOS"]').val(trip_date[0]);
-      $('select[id$="PREV_US_VISIT_LOS_CD"]').val("D");
-      $('select[id$="PREV_US_VISIT_LOS_CD"]').change();
+      fillNumberInput("PREV_US_VISIT_LOS", value);
+      setSelectValue("PREV_US_VISIT_LOS_CD", "D");
       previous_ustrip_duration = true;
     }
     if(interaction == "driverslicense_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="PREV_US_DRIVER_LIC_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="PREV_US_DRIVER_LIC_IND_0"]').prop("checked", true);
-      }
-      driverslicense_yn = true;
+      driverslicense_yn = checkYesNo("PREV_US_DRIVER_LIC_IND", value);
     }
     if(interaction == "previous_visa_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="PREV_VISA_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="PREV_VISA_IND_0"]').prop("checked", true);
-      }
-      previous_visa_yn = true;
+      previous_visa_yn = checkYesNo("PREV_VISA_IND", value);
     }
 
 
     if(interaction == "previousvisa_issuedate"){
-      var issue_date = personalData[i].value.split("/");
-      //console.log(issue_date);
-      var issue_day = issue_date[0];
-      $('select[id$="PREV_VISA_ISSUED_DTEDay"]').find('option').each(function(){
-        if($(this).text()==issue_day){
-          $('select[id$="PREV_VISA_ISSUED_DTEDay"]').val($(this).val());
-          $('select[id$="PREV_VISA_ISSUED_DTEDay"]').change();
-        }
-      });
-      var issue_month = issue_date[1];
-      $('select[id$="PREV_VISA_ISSUED_DTEMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(issue_month)){
-          $('select[id$="PREV_VISA_ISSUED_DTEMonth"]').val($(this).val());
-          $('select[id$="PREV_VISA_ISSUED_DTEMonth"]').change();
-        }
-      });
-      $('input[name$="PREV_VISA_ISSUED_DTEYear"]').val(issue_date[2]);
-      previousvisa_issuedate = true;
+      previousvisa_issuedate = setDate("PREV_VISA_ISSUED", value);
     }
     if(interaction == "previousvisa_number"){
-      $('input[name$="PREV_VISA_FOIL_NUMBER"]').val(personalData[i].value);
-      previousvisa_number = true;
+      previousvisa_number = fillTextInput("PREV_VISA_FOIL_NUMBER", value);
     }
     if(interaction == "previousvisa_same_yn"){
-      if(personalData[i].value=="Yes"){
-        $('input[id$="PREV_VISA_SAME_TYPE_IND_0"]').prop("checked", true);
-        $('input[id$="PREV_VISA_SAME_CNTRY_IND_0"]').prop("checked", true);
-      }else{
-        $('input[id$="PREV_VISA_SAME_TYPE_IND_1"]').prop("checked", true);
-        $('input[id$="PREV_VISA_SAME_CNTRY_IND_1"]').prop("checked", true);
-      }
-      previousvisa_same_yn = true;
+      previousvisa_same_yn = checkYesNo("PREV_VISA_SAME_TYPE_IND", value);
+      checkYesNo("PREV_VISA_SAME_CNTRY_IND", value);
     }
     if(interaction == "tenprinted_yn"){
-      if(personalData[i].value=="Yes"){
-        $('input[id$="PREV_VISA_TEN_PRINT_IND_0"]').prop("checked", true);
-      }else{
-        $('input[id$="PREV_VISA_TEN_PRINT_IND_1"]').prop("checked", true);
-      }
-      tenprinted_yn = true;
+      tenprinted_yn = checkYesNo("PREV_VISA_TEN_PRINT_IND", value);
     }
     if(interaction == "previousvisa_lost_stolen_yn"){
-      if(personalData[i].value=="Yes"){
-        $('input[id$="PREV_VISA_LOST_IND_0"]').prop("checked", true);
-      }else{
-        $('input[id$="PREV_VISA_LOST_IND_1"]').prop("checked", true);
-      }
-      previousvisa_lost_stolen_yn = true;
+      previousvisa_lost_stolen_yn = checkYesNo("PREV_VISA_LOST_IND", value);
     }
     if(interaction == "previousvisa_revoked_yn"){
-      if(personalData[i].value=="Yes"){
-        $('input[id$="PREV_VISA_CANCELLED_IND_0"]').prop("checked", true);
-      }else{
-        $('input[id$="PREV_VISA_CANCELLED_IND_1"]').prop("checked", true);
-      }
-      previousvisa_revoked_yn = true;
+      previousvisa_revoked_yn = checkYesNo("PREV_VISA_CANCELLED_IND", value);
     }
-
-
 
     if(interaction == "entryrefusal_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="PREV_VISA_REFUSED_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="PREV_VISA_REFUSED_IND_0"]').prop("checked", true);
-      }
-      entryrefusal_yn = true;
+      entryrefusal_yn = checkYesNo("PREV_VISA_REFUSED_IND", value);
     }
     if(interaction == "immigration_petition_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="PETITION_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="PETITION_IND_0"]').prop("checked", true);
-      }
-      immigration_petition_yn = true;
+      immigration_petition_yn = checkYesNo("PETITION_IND", value);
     }
   }
   var missing_obj = [];
   var i =0;
   if(!ustravel_yn){
-    $('input[id$="PREV_US_TRAVEL_IND_1"]').prop("checked", true);
+    checkBox("PREV_US_TRAVEL_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="ustravel_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!previous_ustrip_date){
-    $('select[id$="PREV_US_VISIT_DTEDay"]').val("1");
-    $('select[id$="PREV_US_VISIT_DTEDay"]').change();
-    $('select[id$="PREV_US_VISIT_DTEMonth"]').val("1");
-    $('select[id$="PREV_US_VISIT_DTEMonth"]').change();
-    $('input[name$="PREV_US_VISIT_DTEYear"]').val("2001");
+    setDate("PREV_US_VISIT", DEFAULT_PAST_DATE);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previous_ustrip_date";
     missing_obj[i]['value']='1/01/2001';
     i++
   }
   if(!previous_ustrip_duration){
-    $('input[name$="PREV_US_VISIT_LOS"]').val("10");
-    $('select[id$="PREV_US_VISIT_LOS_CD"]').val("D");
-    $('select[id$="PREV_US_VISIT_LOS_CD"]').change();
+    fillNumberInput("PREV_US_VISIT_LOS", "10");
+    setSelectValue("PREV_US_VISIT_LOS_CD", "D");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previous_ustrip_duration";
     missing_obj[i]['value']='10 Days';
     i++
   }
   if(!driverslicense_yn){
-    $('input[id$="PREV_US_DRIVER_LIC_IND_1"]').prop("checked", true);
+    checkBox("PREV_US_DRIVER_LIC_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="driverslicense_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!previous_visa_yn){
-    $('input[id$="PREV_VISA_IND_1"]').prop("checked", true);
+    checkBox("PREV_VISA_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previous_visa_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!previousvisa_issuedate){
-    $('select[id$="PREV_VISA_ISSUED_DTEDay"]').val("1");
-    $('select[id$="PREV_VISA_ISSUED_DTEDay"]').change();
-    $('select[id$="PREV_VISA_ISSUED_DTEMonth"]').val("1");
-    $('select[id$="PREV_VISA_ISSUED_DTEMonth"]').change();
-    $('input[name$="PREV_VISA_ISSUED_DTEYear"]').val("2001");
+    setDate("PREV_VISA_ISSUED", DEFAULT_PAST_DATE);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previousvisa_issuedate";
     missing_obj[i]['value']='1/01/2001';
     i++
   }
   if(!previousvisa_number){
-    $('input[id$="PREV_VISA_FOIL_NUMBER_NA"]').prop("checked", true);
+    checkBox("PREV_VISA_FOIL_NUMBER_NA");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previousvisa_number";
     missing_obj[i]['value']='123456789';
     i++
   }
   if(!previousvisa_same_yn){
-    $('input[id$="PREV_VISA_SAME_TYPE_IND_1"]').prop("checked", true);
-    $('input[id$="PREV_VISA_SAME_CNTRY_IND_1"]').prop("checked", true);
+    checkBox("PREV_VISA_SAME_TYPE_IND_1");
+    checkBox("PREV_VISA_SAME_CNTRY_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previousvisa_same_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!tenprinted_yn){
-    $('input[id$="PREV_VISA_TEN_PRINT_IND_1"]').prop("checked", true);
+    checkBox("PREV_VISA_TEN_PRINT_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="tenprinted_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!previousvisa_lost_stolen_yn){
-    $('input[id$="PREV_VISA_LOST_IND_1"]').prop("checked", true);
+    checkBox("PREV_VISA_LOST_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previousvisa_lost_stolen_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!previousvisa_revoked_yn){
-    $('input[id$="PREV_VISA_CANCELLED_IND_1"]').prop("checked", true);
+    checkBox("PREV_VISA_CANCELLED_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previousvisa_revoked_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!entryrefusal_yn){
-    $('input[id$="PREV_VISA_REFUSED_IND_1"]').prop("checked", true);
+    checkBox("PREV_VISA_REFUSED_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="entryrefusal_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!immigration_petition_yn){
-    $('input[id$="PETITION_IND_1"]').prop("checked", true);
+    checkBox("PETITION_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="immigration_petition_yn";
     missing_obj[i]['value']='Yes/No';
@@ -816,132 +728,12 @@ function fillOutPagePreviousUSTravelOld(personalData) {
 function fillOutPageUSContactOld(personalData) {
   var contact_surname= false,contact_givenname=false,organization_name=false,contact_relationship=false,contact_person_street=false,contact_person_city=false,contact_person_state=false,contact_person_zipcode=false,contact_person_phone=false,contact_person_email=false;
 
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
-    if(interaction == "contact_surname"){
-      $('input[name$="US_POC_SURNAME"]').val(personalData[i].value);
-      contact_surname = true;
-    }
-    if(interaction == "contact_givenname"){
-      $('input[name$="US_POC_GIVEN_NAME"]').val(personalData[i].value);
-      contact_givenname = true;
-    }else{
-      $('input[id$="US_POC_NAME_NA"]').prop("checked", true);
-    }
-    if(interaction == "organization_name"){
-      $('input[name$="US_POC_ORGANIZATION"]').val(personalData[i].value);
-      organization_name = true;
-    }else{
-      $('input[name$="US_POC_ORGANIZATION"]').val("organization");
-    }
-    if(interaction == "contact_person_street"){
-      $('input[name$="US_POC_ADDR_LN1"]').val(personalData[i].value);
-      contact_person_street = true;
-    }
-    if(interaction == "contact_person_city"){
-      $('input[name$="US_POC_ADDR_CITY"]').val(personalData[i].value);
-      contact_person_city = true;
-    }
-    if(interaction == "contact_person_state"){
-      $('select[name$="US_POC_ADDR_STATE"]').val(personalData[i].value);
-      contact_person_state = true;
-    }
-    if(interaction == "contact_person_zipcode"){
-      $('input[name$="US_POC_ADDR_POSTAL_CD"]').val(personalData[i].value);
-      contact_person_zipcode = true;
-    }
-    if(interaction == "contact_person_phone"){
-      $('input[name$="US_POC_HOME_TEL"]').val(personalData[i].value);
-      contact_person_phone = true
-    }
-    if(interaction == "contact_person_email"){
-      $('input[name$="US_POC_EMAIL_ADDR"]').val(personalData[i].value);
-      contact_person_email = true;
-    }else{
-      $('input[id$="US_POC_EMAIL_ADDR_NA"]').prop("checked", true);
-    }
-    if(interaction == "contact_relationship"){
-      $('select[name$="US_POC_REL_TO_APP"]').val(personalData[i].value);
-      $('select[name$="US_POC_REL_TO_APP"]').change();
-      contact_relationship = true;
-    }else{
-      $('select[name$="US_POC_REL_TO_APP"]').val("O");
-      $('select[name$="US_POC_REL_TO_APP"]').change();
-    }
-  }
-  var missing_obj = [];
-  var i =0;
-  if(!contact_surname){
-    $('input[name$="US_POC_SURNAME"]').val("surname");
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_surname";
-    missing_obj[i]['value']='contact person firstname';
-    i++
-  }
-  if(!contact_givenname){
-    $('input[id$="US_POC_NAME_NA"]').prop("checked", true);
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_givenname";
-    missing_obj[i]['value']='contact person lastname';
-    i++;
-  }
-  if(!organization_name){
-    $('input[name$="US_POC_ORGANIZATION"]').val("organization");
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="organization_name";
-    missing_obj[i]['value']='organization name';
-    i++;
-  }
-  if(!contact_person_street){
-    $('input[name$="US_POC_ADDR_LN1"]').val("street");
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_person_street";
-    missing_obj[i]['value']='street';
-    i++;
-  }
-  if(!contact_person_city){
-    $('input[name$="US_POC_ADDR_CITY"]').val("city");
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_person_city";
-    missing_obj[i]['value']='city';
-    i++;
-  }
-  if(!contact_person_state){
-    $('select[name$="US_POC_ADDR_STATE"]').val("DE");
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_person_state";
-    missing_obj[i]['value']='AL/AK/AS...';
-    i++;
-  }
-  if(!contact_person_zipcode){
-    $('input[name$="US_POC_ADDR_POSTAL_CD"]').val("12345");
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_person_zipcode";
-    missing_obj[i]['value']='12345';
-    i++;
-  }
-  if(!contact_person_phone){
-    $('input[name$="US_POC_HOME_TEL"]').val("123456789");
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_person_phone";
-    missing_obj[i]['value']='123456789';
-    i++;
-  }
-  if(!contact_person_email){
-    $('input[id$="US_POC_EMAIL_ADDR_NA"]').prop("checked", true);
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_person_email";
-    missing_obj[i]['value']='test@test.com';
-    i++;
-  }
-  if(!contact_relationship){
-    $('select[name$="US_POC_REL_TO_APP"]').val("O");
-    $('select[name$="US_POC_REL_TO_APP"]').change();
-    missing_obj[i] = {}
-    missing_obj[i]['interaction']="contact_relationship";
-    missing_obj[i]['value']='S/C/B/P/H/O';
-    i++;
-  }
+  checkBox("US_POC_NAME_NA");
+  setAddressValue("US_POC_ADDR", DEFAULT_US_ADDRESS, true);
+  fillTextInput("US_POC_ORGANIZATION", DEFAULT_TEXT);
+  fillNumberInput("US_POC_HOME_TEL", DEFAULT_NUMBER);
+  checkBox("US_POC_EMAIL_ADDR_NA");
+  setSelectValue("US_POC_REL_TO_APP", DEFAULT_RELATIONSHIP);
 }
 
 function fillOutPageSpouseOld(personalData) {
@@ -950,66 +742,28 @@ function fillOutPageSpouseOld(personalData) {
   for(var i in personalData){
     var interaction = personalData[i].interaction, value = personalData[i].value;
     if(interaction == "spouse_first"){
-      $('input[name$="SpouseGivenName"]').val(personalData[i].value);
-      spouse_first = true;
+      spouse_first = fillTextInput("SpouseGivenName", value);
     }
     if(interaction == "spouse_last"){
-      $('input[name$="SpouseSurname"]').val(personalData[i].value);
-      spouse_last = true;
+      spouse_last = fillTextInput("SpouseSurname", value);
     }
     if(interaction == "spouse_dob"){
-      var birth_date = personalData[i].value.split("/");
-      //console.log(birth_date);
-      var birth_day = birth_date[0];
-      $('select[id$="DOBDay"]').find('option').each(function(){
-        if($(this).text()==birth_day){
-          $('select[id$="DOBDay"]').val($(this).val());
-          $('select[id$="DOBDay"]').change();
-        }
-      });
-      var birth_month = birth_date[1];
-      $('select[id$="DOBMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(birth_month)){
-          $('select[id$="DOBMonth"]').val($(this).val());
-          $('select[id$="DOBMonth"]').change();
-        }
-      });
-      $('input[name$="DOBYear"]').val(birth_date[2]);
-      spouse_dob = true;
+      spouse_dob = setDate("DOB", value);
     }
     if(interaction == "spouse_nationality"){
-      var country = personalData[i].value.toUpperCase().trim();
-      //console.log(country);
-      $('select[id$="SpouseNatDropDownList"]').find('option').each(function(){
-        if($(this).text()==country){
-          $('select[id$="SpouseNatDropDownList"]').val($(this).val());
-          $('select[id$="SpouseNatDropDownList"]').change();
-        }
-      });
-      spouse_nationality = true;
+      spouse_nationality = setSelectValue("SpouseNatDropDownList", value);
     }
     if(interaction == "spouse_birth_city"){
-      $('input[name$="SpousePOBCity"]').val(personalData[i].value);
-      spouse_birth_city = true;
+      spouse_birth_city = fillTextInput("SpousePOBCity", value);
     }
     if(interaction == "spouse_birth_country"){
-      var country = personalData[i].value.toUpperCase().trim();
-      //console.log(country);
-      $('select[id$="SpousePOBCountry"]').find('option').each(function(){
-        if($(this).text()==country){
-          $('select[id$="SpousePOBCountry"]').val($(this).val());
-          $('select[id$="SpousePOBCountry"]').change();
-        }
-      });
-      spouse_birth_country = true;
+      spouse_birth_country = setSelectValue("SpousePOBCountry", value);
     }
     if(interaction == "spouse_living_yn"){
-      if(personalData[i].value=="Yes"){
-        $('select[id$="SpouseAddressType"]').val("H");
-        $('select[id$="SpouseAddressType"]').change();
+      if(value == "Yes"){
+        setSelectValue("SpouseAddressType", "H");
       }else{
-        $('select[id$="SpouseAddressType"]').val("D");
-        $('select[id$="SpouseAddressType"]').change();
+        setSelectValue("SpouseAddressType", "D");
       }
       spouse_living_yn = true;
     }
@@ -1017,56 +771,49 @@ function fillOutPageSpouseOld(personalData) {
   var missing_obj = [];
   var i =0;
   if(!spouse_first){
-    $('input[name$="SpouseSurname"]').val("spouse firstname");
+    fillTextInput("SpouseSurname", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="spouse_first";
     missing_obj[i]['value']='spouse firstname';
     i++
   }
   if(!spouse_last){
-    $('input[name$="SpouseGivenName"]').val("spouse lastname");
+    fillTextInput("SpouseGivenName", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="spouse_last";
     missing_obj[i]['value']='spouse lastname';
     i++
   }
   if(!spouse_dob){
-    $('select[id$="DOBDay"]').val("1");
-    $('select[id$="DOBDay"]').change();
-    $('select[id$="DOBMonth"]').val("1");
-    $('select[id$="DOBMonth"]').change();
-    $('input[name$="DOBYear"]').val("1980");
+    setDat("DOB", DEFAULT_PAST_DATE);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="spouse_dob";
     missing_obj[i]['value']="01/1/1970";
     i++
   }
   if(!spouse_nationality){
-    $('select[id$="SpouseNatDropDownList"]').val("ARG");
-    $('select[id$="SpouseNatDropDownList"]').change();
+    setSelectValue("SpouseNatDropDownList", DEFAULT_COUNTRY);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="spouse_nationality";
     missing_obj[i]['value']="Albania/Algeria/American";
     i++
   }
   if(!spouse_birth_city){
-    $('input[id$="SPOUSE_POB_CITY_NA"]').prop("checked", true);
+    checkBox("SPOUSE_POB_CITY_NA");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="spouse_birth_city";
     missing_obj[i]['value']="City name";
     i++
   }
   if(!spouse_birth_country){
-    $('select[id$="SpousePOBCountry"]').val("ARG");
-    $('select[id$="SpousePOBCountry"]').change();
+    setSelectValue("SpousePOBCountry", DEFAULT_COUNTRY);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="spouse_birth_country";
     missing_obj[i]['value']="Albania/Algeria/American";
     i++
   }
   if(!spouse_living_yn){
-    $('select[id$="SpouseAddressType"]').val("D");
-    $('select[id$="SpouseAddressType"]').change();
+    setSelectValue("SpouseAddressType", "D");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="spouse_living_yn";
     missing_obj[i]['value']="Yes/No";
@@ -1080,147 +827,59 @@ function fillOutPageRelativesOld(personalData) {
   for(var i in personalData){
     var interaction = personalData[i].interaction, value = personalData[i].value;
     if(interaction == "father_last_name"){
-      $('input[name$="FATHER_SURNAME"]').val(personalData[i].value);
-      father_last_name = true;
-    }//else{
-    //	$('input[id$="FATHER_SURNAME_UNK_IND"]').prop("checked", true);
-    //}
+      father_last_name = fillTextInput("FATHER_SURNAME", value);
+    }
     if(interaction == "father_first_name"){
-      $('input[name$="FATHER_GIVEN_NAME"]').val(personalData[i].value);
-      father_first_name = true;
-    }//else{
-    //	$('input[id$="FATHER_GIVEN_NAME_UNK_IND"]').prop("checked", true);
-    //}
+      father_first_name = fillTextInput("FATHER_GIVEN_NAME", value);
+    }
     if(interaction == "fatherDOB"){
-      var father_date = personalData[i].value.split("/");
-      //console.log(father_date);
-      var father_day = father_date[0];
-      $('select[id$="FathersDOBDay"]').find('option').each(function(){
-        if($(this).text()==father_day){
-          $('select[id$="FathersDOBDay"]').val($(this).val());
-          $('select[id$="FathersDOBDay"]').change();
-        }
-      });
-      var father_month = father_date[1];
-      $('select[id$="FathersDOBMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(father_month)){
-          $('select[id$="FathersDOBMonth"]').val($(this).val());
-          $('select[id$="FathersDOBMonth"]').change();
-        }
-      });
-      $('input[name$="FathersDOBYear"]').val(father_date[2]);
-      fatherDOB = true;
+      fatherDOB = setDate("FathersDOB", value);
     }
     if(interaction == "father_location"){
-      if(personalData[i].value=="No"){
-        $('input[id$="FATHER_LIVE_IN_US_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="FATHER_LIVE_IN_US_IND_0"]').prop("checked", true);
-      }
-      father_location = true;
+      father_location = checkYesNo("FATHER_LIVE_IN_US_IND", value);
     }
     if(interaction == "mother_last_name"){
-      $('input[name$="MOTHER_SURNAME"]').val(personalData[i].value);
-      mother_first_name = true;
-    }//else{
-    //	$('input[id$="MOTHER_SURNAME_UNK_IND"]').prop("checked", true);
-    //}
+      mother_last_name = fillTextInput("MOTHER_SURNAME", value);
+    }
     if(interaction == "mother_first_name"){
-      $('input[name$="MOTHER_GIVEN_NAME"]').val(personalData[i].value);
-      mother_last_name = true;
-    }//else{
-    //	$('input[id$="MOTHER_GIVEN_NAME_UNK_IND"]').prop("checked", true);
-    //}
+      mother_first_name = fillTextInput("MOTHER_GIVEN_NAME", value);
+    }
     if(interaction == "motherDOB"){
-      var mother_date = personalData[i].value.split("/");
-      //console.log(mother_date);
-      var mother_day = mother_date[0];
-      $('select[id$="MothersDOBDay"]').find('option').each(function(){
-        if($(this).text()==mother_day){
-          $('select[id$="MothersDOBDay"]').val($(this).val());
-          $('select[id$="MothersDOBDay"]').change();
-        }
-      });
-      var mother_month = mother_date[1];
-      $('select[id$="MothersDOBMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(mother_month)){
-          $('select[id$="MothersDOBMonth"]').val($(this).val());
-          $('select[id$="MothersDOBMonth"]').change();
-        }
-      });
-      $('input[name$="MothersDOBYear"]').val(mother_date[2]);
-      motherDOB = true;
+      motherDOB = setDate("MothersDOB", value);
     }
     if(interaction == "mother_location"){
-      if(personalData[i].value=="No"){
-        $('input[id$="MOTHER_LIVE_IN_US_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="MOTHER_LIVE_IN_US_IND_0"]').prop("checked", true);
-      }
-      mother_location = true;
+      mother_location = checkYesNo("MOTHER_LIVE_IN_US_IND", value);
     }
     if(interaction == "US_IMrelatives_yn"){
-      if(personalData[i].value=="Yes"){
-        $('input[id$="US_IMMED_RELATIVE_IND_0"]').prop("checked", true);
-      }else{
-        $('input[id$="US_IMMED_RELATIVE_IND_1"]').prop("checked", true);
-      }
-      US_IMrelatives_yn = true;
+      US_IMrelatives_yn = checkYesNo("US_IMMED_RELATIVE_IND", value);
     }
     if(interaction == "immediate_relative_first_name"){
-      $('input[name$="US_REL_SURNAME"]').val(personalData[i].value);
-      immediate_relative_first_name = true;
+      immediate_relative_first_name = fillTextInput("US_REL_GIVEN_NAME", value);
     }
     if(interaction == "immediate_relative_last_name"){
-      $('input[name$="US_REL_GIVEN_NAME"]').val(personalData[i].value);
-      immediate_relative_last_name = true;
+      immediate_relative_last_name = fillTextInput("US_REL_SURNAME", value);
     }
     if(interaction == "immediate_relative_type"){
-      var immediate = personalData[i].value.toUpperCase().trim();
-      $('select[id$="US_REL_TYPE"]').find('option').each(function(){
-        if($(this).text()==immediate){
-          $('select[id$="US_REL_TYPE"]').val($(this).val());
-          $('select[id$="US_REL_TYPE"]').change();
-        }
-      });
-      immediate_relative_type = true;
+      immediate_relative_type = setSelectValue("US_REL_TYPE", value);
     }
     if(interaction == "immediate_relative_status"){
-      var immediate_status = personalData[i].value.toUpperCase().trim();
-      if(immediate_status=="CITIZEN"){
-        $('select[id$="US_REL_STATUS"]').val("S");
-        $('select[id$="US_REL_STATUS"]').change();
-      }else if(immediate_status=="RESIDENT"){
-        $('select[id$="US_REL_STATUS"]').val("C");
-        $('select[id$="US_REL_STATUS"]').change();
-      }else if(immediate_status=="NONIMMIGRANT"){
-        $('select[id$="US_REL_STATUS"]').val("P");
-        $('select[id$="US_REL_STATUS"]').change();
-      }else{
-        $('select[id$="US_REL_STATUS"]').val("O");
-        $('select[id$="US_REL_STATUS"]').change();
-      }
-      immediate_relative_status = true;
+      immediate_relative_status = findInSelect("US_REL_STATUS", value);
     }
     if(interaction == "US_relatives_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="US_OTHER_RELATIVE_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="US_OTHER_RELATIVE_IND_0"]').prop("checked", true);
-      }
-      US_relatives_yn = true;
+      US_relatives_yn = checkYesNo("US_OTHER_RELATIVE_IND", value);
     }
   }
   var missing_obj = [];
   var i =0;
   if(!father_first_name){
-    $('input[id$="FATHER_SURNAME_UNK_IND"]').prop("checked", true);
+    checkBox("FATHER_SURNAME_UNK_IND");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="father_first_name";
     missing_obj[i]['value']='father firstname';
     i++
   }
   if(!father_last_name){
+    checkBox("FATHER_GIVEN_NAME_UNK_IND");
     $('input[id$="FATHER_GIVEN_NAME_UNK_IND"]').prop("checked", true);
     missing_obj[i] = {};
     missing_obj[i]['interaction']="father_last_name";
@@ -1228,6 +887,7 @@ function fillOutPageRelativesOld(personalData) {
     i++
   }
   if(!fatherDOB){
+    checkBox("FATHER_DOB_UNK_IND");
     $('input[id$="FATHER_DOB_UNK_IND"]').prop("checked", true);
     missing_obj[i] = {};
     missing_obj[i]['interaction']="fatherDOB";
@@ -1235,79 +895,77 @@ function fillOutPageRelativesOld(personalData) {
     i++
   }
   if(!father_location){
-    $('input[id$="FATHER_LIVE_IN_US_IND_1"]').prop("checked", true);
+    checkBox("FATHER_LIVE_IN_US_IND_1");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="father_location";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!mother_first_name){
-    $('input[id$="MOTHER_SURNAME_UNK_IND"]').prop("checked", true);
+    checkBox("MOTHER_SURNAME_UNK_IND");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="mother_first_name";
     missing_obj[i]['value']='mother firstname';
     i++
   }
   if(!mother_last_name){
-    $('input[id$="MOTHER_GIVEN_NAME_UNK_IND"]').prop("checked", true);
+    checkBox("MOTHER_GIVEN_NAME_UNK_IND");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="mother_last_name";
     missing_obj[i]['value']='mother lastname';
     i++
   }
   if(!motherDOB){
-    $('input[id$="MOTHER_DOB_UNK_IND"]').prop("checked", true);
+    checkBox("MOTHER_DOB_UNK_IND");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="motherDOB";
     missing_obj[i]['value']='1/1/1965';
     i++
   }
   if(!mother_location){
-    $('input[id$="MOTHER_LIVE_IN_US_IND_1"]').prop("checked", true);
+    checkBox("MOTHER_LIVE_IN_US_IND_1");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="mother_location";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!US_IMrelatives_yn){
-    $('input[id$="US_IMMED_RELATIVE_IND_1"]').prop("checked", true);
+    checkBox("US_IMMED_RELATIVE_IND_1");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="US_IMrelatives_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!immediate_relative_first_name){
-    $('input[name$="US_REL_SURNAME"]').val("relfirstname");
+    fillTextInput("US_REL_SURNAME", DEFAULT_TEXT);
     missing_obj[i] = {};
     missing_obj[i]['interaction']="immediate_relative_first_name";
     missing_obj[i]['value']='relative firstname';
     i++
   }
   if(!immediate_relative_last_name){
-    $('input[name$="US_REL_GIVEN_NAME"]').val("rellastname");
+    fillTextInput("US_REL_GIVEN_NAME", DEFAULT_TEXT);
     missing_obj[i] = {};
     missing_obj[i]['interaction']="immediate_relative_last_name";
     missing_obj[i]['value']='relative lastname';
     i++
   }
   if(interaction == "immediate_relative_type"){
-    $('select[id$="US_REL_TYPE"]').val("B");
-    $('select[id$="US_REL_TYPE"]').change();
+    setSelectValue("US_REL_TYPE", "B");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="immediate_relative_type";
     missing_obj[i]['value']='Spouse/Child/Sibling';
     i++
   }
   if(!immediate_relative_status){
-    $('select[id$="US_REL_STATUS"]').val("O");
-    $('select[id$="US_REL_STATUS"]').change();
+    setSelectValue("US_REL_STATUS", "O");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="immediate_relative_status";
     missing_obj[i]['value']='citizen/resident/nonimmigrant/other';
     i++
   }
   if(!US_relatives_yn){
-    $('input[name$="US_OTHER_RELATIVE_IND_1"]').prop("checked", true);
+    checkBox("US_OTHER_RELATIVE_IND_1");
     missing_obj[i] = {};
     missing_obj[i]['interaction']="US_OTHER_RELATIVE_IND_1";
     missing_obj[i]['value']='Yes/No';
@@ -1315,47 +973,70 @@ function fillOutPageRelativesOld(personalData) {
   }
 }
 
-function fillOutPageWorkEducation1Old(personalData) {
-  var occupation= false,employer_school_name=false,employer_address=false,current_monthly_income=false,employer_duties=false,occupation_other_explain=false;
-
+function fillOutPagePrevSpouseOld(personalData) {
+  var spouse_first= false,spouse_last=false,spouse_dob=false,spouse_birth_city=false,spouse_nationality=false,spouse_birth_country=false,ex_start_date=false, ex_end_date=false,mariage_end_why=false,mariage_end_country=false;
+  $('input[name$="NumberOfPrevSpouses"]').val("1");
   for(var i in personalData){
     var interaction = personalData[i].interaction, value = personalData[i].value;
-    if(interaction == "occupation"){
-      findInSelect("PresentOccupation", personalData[i].value);
-      // $('select[id$="PresentOccupation"]').find('option').each(function(){
-      //   if($(this).text().toUpperCase().indexOf(personalData[i].value.toUpperCase())!=-1){
-      //     $('select[id$="PresentOccupation"]').val($(this).val());
-      //     $('select[id$="PresentOccupation"]').change();
-      //   }
-      // });
-      occupation = true;
+    if(interaction == "spouse_first"){
+      spouse_first = fillTextInput("GIVEN_NAME", value);
+    }
+    if(interaction == "spouse_last"){
+      spouse_last = fillTextInput("SURNAME", value);
+    }
+    if(interaction == "spouse_dob"){
+      spouse_dob = setDate("DOB", value);
+    }
+    if(interaction == "spouse_nationality"){
+      spouse_nationality = setSelectValue("SpouseNatDropDownList", value);
+    }
+    if(interaction == "spouse_birth_city"){
+      spouse_birth_city = fillTextInput("SpousePOBCity", value);
+    }
+    if(interaction == "spouse_birth_country"){
+      spouse_birth_country = setSelectValue("SpousePOBCountry", value);
+    }
+    if(interaction == "ex_start_date"){
+      ex_start_date = setDate("Dom", value);
+    }
+    if(interaction == "ex_end_date"){
+      ex_end_date = setDate("DomEnd", value);
+    }
+    if(interaction == "mariage_end_why"){
+      mariage_end_why = fillTextarea("HowMarriageEnded", value);
+    }
+    if(interaction == "mariage_end_country"){
+      mariage_end_country = setSelectValue("MarriageEnded_CNTRY", value);
+    }
+  }
+}
+
+function fillOutPageWorkEducation1Old(personalData) {
+  var occupation= false,employer_school_name=false,employer_address=false,current_monthly_income=false,employer_duties=false,occupation_other_explain=false;
+  for(var i in personalData){
+    var interaction = personalData[i].interaction, value = personalData[i].value;
+    if(interaction == "is_student" && value == "Yes") {
+      occupation = setSelectValue("PresentOccupation", "STUDENT");
+    }
+    if(interaction == "occupation" || interaction == "work_status"){
+      occupation = findInSelect("PresentOccupation", value);
     }
     if(interaction == "occupation_other_explain"){
-      $('textarea[name$="ExplainOtherPresentOccupation"]').text(personalData[i].value);
-      occupation_other_explain = true;
+      occupation_other_explain = fillTextarea("ExplainOtherPresentOccupation", value);
     }
     if(interaction == "employer_school_name"){
-      fillTextInput("EmpSchName", personalData[i].value);
-      // $('input[name$="EmpSchName"]').val(personalData[i].value);
-      employer_school_name = true;
+      employer_school_name = fillTextInput("EmpSchName", personalData[i].value);
     }
     if(interaction == "employer_name"){
-      fillTextInput("EmpSchName", personalData[i].value);
-      // $('input[name$="EmpSchName"]').val(personalData[i].value);
-      employer_school_name = true;
+      employer_school_name = fillTextInput("EmpSchName", personalData[i].value);
     }
     if(interaction == "employer_number"){
-      fillTextInput("WORK_EDUC_TEL", personalData[i].value.numerize());
-      // $('input[name$="WORK_EDUC_TEL"]').val(personalData[i].value.numerize());
-      employer_number = true;
+      employer_number = fillTextInput("WORK_EDUC_TEL", personalData[i].value.numerize());
     }
     if(interaction == "employer_address"){
-      //console.log(personalData[i].value.trim());
       var address = JSON.parse(personalData[i].value.trim());
-      ////console.log(address);
       if(address['street'].trim() && address['street'].trim()!=""){
         fillTextInput("EmpSchAddr1", address['street'].trim());
-        // $('input[name$="EmpSchAddr1"]').val(address['street'].trim());
       } else {
         fillTextInput("EmpSchAddr1", "MISSING");
       }
@@ -1388,63 +1069,56 @@ function fillOutPageWorkEducation1Old(personalData) {
       employer_address = true;
     }
     if(interaction == "current_monthly_income") {
-      fillTextInput("CURR_MONTHLY_SALARY", personalData[i].value.numerize());
-      current_monthly_income = true;
+      current_monthly_income = fillNumberInput("CURR_MONTHLY_SALARY", value);
     }
     if(interaction == "employer_duties"){
-      $('textarea[name$="DescribeDuties"]').text(personalData[i].value);
-      employer_duties = true;
-    }else{
-      $('textarea[name$="DescribeDuties"]').text("DescribeDuties");
+      employer_duties = fillTextarea("DescribeDuties", value);
     }
   }
   var missing_obj = [];
   var i =0;
   if(!occupation){
-    $('select[id$="PresentOccupation"]').val("LP");
-    $('select[id$="PresentOccupation"]').change();
+    setSelectValue("PresentOccupation", "LP");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="occupation";
     missing_obj[i]['value']='LEGAL PROFESSION/MILITARY/BUSINESS/RESEARCH/STUDENT/OTHER';
     i++
   }
   if(!occupation_other_explain){
-    $('textarea[name$="ExplainOtherPresentOccupation"]').text("OccupationExplain");
+    fillTextarea("ExplainOtherPresentOccupation", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="occupation_other_explain";
     missing_obj[i]['value']='string';
     i++
   }
   if(!employer_school_name){
-    $('input[name$="EmpSchName"]').val("SchoolName");
+    fillTextInput("EmpSchName", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="employer_school_name";
     missing_obj[i]['value']='school name';
     i++
   }
   if(!employer_address){
-    $('input[name$="EmpSchAddr1"]').val("Street");
-    $('input[name$="EmpSchAddr2"]').val("");
-    $('input[name$="EmpSchCity"]').val("City");
-    $('input[id$="WORK_EDUC_ADDR_POSTAL_CD_NA"]').prop("checked", true);
-    $('input[id$="WORK_EDUC_ADDR_STATE_NA"]').prop("checked", true);
-    $('select[id$="EmpSchCountry"]').val("ARG");
-    $('select[id$="EmpSchCountry"]').change();
-    $('input[name$="WORK_EDUC_TEL"]').val("123456789");
+    fillTextInput("EmpSchAddr1", DEFAULT_TEXT);
+    fillTextInput("EmpSchCity", DEFAULT_TEXT);
+    fillNumberInput("WORK_EDUC_TEL", DEFAULT_NUMBER);
+    checkBox("WORK_EDUC_ADDR_POSTAL_CD_NA");
+    checkBox("WORK_EDUC_ADDR_STATE_NA");
+    setSelectValue("EmpSchCountry", DEFAULT_COUNTRY);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="employer_address";
     missing_obj[i]['value']='{"street":"street","line2":"","zip":"1426","city":"Buenos Aires","country":"Argentina"}';
     i++
   }
   if(!current_monthly_income){
-    $('input[id$="CURR_MONTHLY_SALARY_NA"]').prop("checked", true);
+    checkBox("CURR_MONTHLY_SALARY_NA");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="current_monthly_income";
     missing_obj[i]['value']='2000';
     i++
   }
   if(!employer_duties){
-    $('textarea[name$="DescribeDuties"]').text("DescribeDuties");
+    fillTextarea("DescribeDuties", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="employer_duties";
     missing_obj[i]['value']='duties description';
@@ -1459,327 +1133,153 @@ function fillOutPageWorkEducation2Old(personalData) {
     var interaction = personalData[i].interaction, value = personalData[i].value;
 
     if(interaction == "previously_employed"){
-      if(personalData[i].value=="No"){
-        $('input[id$="PreviouslyEmployed_1"]').prop("checked", true);
-      }else{
-        $('input[id$="PreviouslyEmployed_0"]').prop("checked", true);
-      }
-      previously_employed = true;
+      previously_employed = checkYesNo("PreviouslyEmployed", value);
     }
     if(interaction == "past_employer_name"){
-      $('input[name$="EmployerName"]').val(personalData[i].value.trim().replaceAll(".",""));
-      past_employer_name = true;
+      past_employer_name = fillTextInput("EmployerName", value);
     }
 
     if(interaction == "past_employer_address"){
-      //console.log(personalData[i].value.trim());
-      var address = JSON.parse(personalData[i].value.trim());
-      ////console.log(address);
-      if(address['street'].trim() && address['street'].trim()!=""){
-        $('input[name$="EmployerStreetAddress1"]').val(address['street'].trim());
-      }else{
-        $('input[name$="EmployerStreetAddress1"]').val("street");
-      }
-      $('input[name$="EmployerStreetAddress2"]').val(address['line2'].trim());
-      $('input[name$="EmployerCity"]').val(address['city'].trim());
-      if(address['city'].trim() && address['city'].trim()!=""){
-        $('input[name$="EmployerCity"]').val(address['city'].trim());
-      }else{
-        $('input[name$="EmployerCity"]').val("city");
-      }
-      if(address['zip'] && address['zip'].trim()!=""){
-        $('input[name$="PREV_EMPL_ADDR_POSTAL_CD"]').val(address['zip']);
-      }else{
-        $('input[id$="PREV_EMPL_ADDR_POSTAL_CD_NA"]').prop("checked", true);
-      }
-      if(address['state']){
-        $('input[name$="PREV_EMPL_ADDR_STATE"]').val(address['state']);
-      }else{
-        $('input[id$="PREV_EMPL_ADDR_STATE_NA"]').prop("checked", true);
-      }
-      var country_status = false;
-      $('select[id$="DropDownList2"]').find('option').each(function(){
-        if($(this).text()==address['country'].toUpperCase().trim()){
-          $('select[id$="DropDownList2"]').val($(this).val());
-          $('select[id$="DropDownList2"]').change();
-          country_status=true;
-        }
-      });
-      if(!country_status){
-        $('select[id$="DropDownList2"]').val("ARG");
-        $('select[id$="DropDownList2"]').change();
-      }
-      if(address['phone_number']){
-        $('input[name$="EmployerPhone"]').val(address['phone_number']);
-      }else{
-        $('input[name$="EmployerPhone"]').val("123456789");
-      }
-      past_employer_address = true;
+      past_employer_address = setAddressValue("Employer", value, false, "PREV_EMPL_ADDR");
     }
-    if(interaction == "past_job_title"){
-      $('input[name$="JobTitle"]').val(personalData[i].value.trim());
-      past_job_title = true;
+    if (interaction == "past_employer_number") {
+      fillNumberInput("EmployerPhone", value);
+    }
+    if(interaction == "past_job_title") {
+      past_job_title = fillTextInput("JobTitle", value);
     }
     if(interaction == "supervisors_name"){
-      $('input[name$="SupervisorSurname"]').val(address['state']);
-      $('input[name$="SupervisorGivenName"]').val(address['state']);
-      supervisors_name = true;
-    }else{
-      $('input[id$="SupervisorSurname_NA"]').prop("checked", true);
-      $('input[name$="SupervisorGivenName_NA"]').prop("checked", true);
+      var names = value.split(" ");
+      var first_name = names.shift();
+      fillTextInput("SupervisorGivenName", first_name);
+      fillTextInput("SupervisorSurname", names.join(' '));
+      supervisors_name = (value.trim() != '');
     }
     if(interaction == "start_date"){
-      var pre_start_date = personalData[i].value.split("/");
-      //console.log(pre_start_date);
-      var start_day = pre_start_date[0];
-      $('select[id$="EmpDateFromDay"]').find('option').each(function(){
-        if($(this).text()==start_day){
-          $('select[id$="EmpDateFromDay"]').val($(this).val());
-          $('select[id$="EmpDateFromDay"]').change();
-        }
-      });
-      var start_month = pre_start_date[1];
-      $('select[id$="EmpDateFromMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(start_month)){
-          $('select[id$="EmpDateFromMonth"]').val($(this).val());
-          $('select[id$="EmpDateFromMonth"]').change();
-        }
-      });
-      $('input[name$="EmpDateFromYear"]').val(pre_start_date[2]);
-      start_date = true;
+      start_date = setDate("EmpDateFrom", value);
     }
     if(interaction == "end_date"){
-      var pre_end_date = personalData[i].value.split("/");
-      //console.log(pre_end_date);
-      var end_day = pre_end_date[0];
-      $('select[id$="EmpDateToDay"]').find('option').each(function(){
-        if($(this).text()==end_day){
-          $('select[id$="EmpDateToDay"]').val($(this).val());
-          $('select[id$="EmpDateToDay"]').change();
-        }
-      });
-      var end_month = pre_end_date[1];
-      $('select[id$="EmpDateToMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(end_month)){
-          $('select[id$="EmpDateToMonth"]').val($(this).val());
-          $('select[id$="EmpDateToMonth"]').change();
-        }
-      });
-      $('input[name$="EmpDateToYear"]').val(pre_end_date[2]);
-      end_date = true;
+      end_date = setDate("EmpDateTo", value);
     }
     if(interaction == "past_duties"){
-      $('textarea[name$="DescribeDuties"]').text(personalData[i].value);
-      past_duties = true;
+      past_duties = fillTextarea("DescribeDuties", value);
     }
 
     if(interaction == "previous_education"){
-      if(personalData[i].value=="Yes"){
-        $('input[id$="OtherEduc_0"]').prop("checked", true);
-      }else{
-        $('input[id$="OtherEduc_1"]').prop("checked", true);
-      }
-      previous_education = true;
+      previous_education = checkYesNo("OtherEduc", value);
     }
     if(interaction == "previous_school_name"){
-      $('input[name$="SchoolName"]').val(personalData[i].value.trim().replaceAll(".",""));
-      previous_school_name = true;
+      previous_school_name = fillTextInput("SchoolName", value);
     }
     if(interaction == "previous_school_address"){
-      //console.log(personalData[i].value.trim());
-      var address = JSON.parse(personalData[i].value.trim());
-      ////console.log(address);
-      $('input[name$="SchoolAddr1"]').val(address['street'].trim());
-      $('input[name$="SchoolAddr2"]').val(address['line2'].trim());
-      $('input[name$="SchoolCity"]').val(address['city'].trim());
-      if(address['zip']){
-        $('input[name$="EDUC_INST_POSTAL_CD"]').val(address['zip']);
-      }else{
-        $('input[id$="EDUC_INST_POSTAL_CD_NA"]').prop("checked", true);
-      }
-      if(address['state']){
-        $('input[name$="EDUC_INST_ADDR_STATE"]').val(address['state']);
-      }else{
-        $('input[id$="EDUC_INST_ADDR_STATE_NA"]').prop("checked", true);
-      }
-      $('select[id$="SchoolCountry"]').find('option').each(function(){
-        if($(this).text()==address['country'].toUpperCase().trim()){
-          $('select[id$="SchoolCountry"]').val($(this).val());
-          $('select[id$="SchoolCountry"]').change();
-        }
-      });
-      previous_school_address = true;
+      previous_school_address = setAddressValue("School", value, false, "EDUC_INST_ADDR");
     }
     if(interaction == "previous_course_study"){
-      $('input[name$="SchoolCourseOfStudy"]').val(personalData[i].value);
-      previous_course_study = true;
+      previous_course_study = fillTextInput("SchoolCourseOfStudy", value);
     }
     if(interaction == "school_start"){
-      var start_date = personalData[i].value.split("/");
-      //console.log(start_date);
-      var start_day = start_date[0];
-      $('select[id$="SchoolFromDay"]').find('option').each(function(){
-        if($(this).text()==start_day){
-          $('select[id$="SchoolFromDay"]').val($(this).val());
-          $('select[id$="SchoolFromDay"]').change();
-        }
-      });
-      var start_month = start_date[1];
-      $('select[id$="SchoolFromMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(start_month)){
-          $('select[id$="SchoolFromMonth"]').val($(this).val());
-          $('select[id$="SchoolFromMonth"]').change();
-        }
-      });
-      $('input[name$="SchoolFromYear"]').val(start_date[2]);
-      school_start = true;
+      school_start = setDate("SchoolFrom", value);
     }
     if(interaction == "school_end"){
-      var end_date = personalData[i].value.split("/");
-      //console.log(end_date);
-      var end_day = end_date[0];
-      $('select[id$="SchoolToDay"]').find('option').each(function(){
-        if($(this).text()==end_day){
-          $('select[id$="SchoolToDay"]').val($(this).val());
-          $('select[id$="SchoolToDay"]').change();
-        }
-      });
-      var end_month = end_date[1];
-      $('select[id$="SchoolToMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(end_month)){
-          $('select[id$="SchoolToMonth"]').val($(this).val());
-          $('select[id$="SchoolToMonth"]').change();
-        }
-      });
-      $('input[name$="SchoolToYear"]').val(end_date[2]);
-      school_end = true;
+      school_end = setDate("SchoolTo", value);
     }
   }
   var missing_obj = [];
   var i =0;
   if(!previously_employed){
-    $('input[id$="PreviouslyEmployed_1"]').prop("checked", true);
+    checkBox("PreviouslyEmployed_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previously_employed";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!past_employer_name){
-    $('input[name$="EmployerName"]').val("employee name");
+    fillTextInput("EmployerName", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="past_employer_name";
     missing_obj[i]['value']='employee name';
     i++
   }
   if(!past_employer_address){
-    $('input[name$="EmployerStreetAddress1"]').val("Street");
-    $('input[name$="EmployerStreetAddress2"]').val("");
-    $('input[name$="EmployerCity"]').val("City");
-    $('input[id$="PREV_EMPL_ADDR_POSTAL_CD"]').prop("checked", true);
-    $('input[id$="PREV_EMPL_ADDR_STATE_NA"]').prop("checked", true);
-    $('select[id$="DropDownList2"]').val("ARG");
-    $('select[id$="DropDownList2"]').change();
-    $('input[name$="EmployerPhone"]').val("123456789");
+    setAddressValue("Employer", DEFAULT_ADDRESS, false, "PREV_EMPL_ADDR");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="employer_address";
     missing_obj[i]['value']='{"street":"street","line2":"","zip":"1426","city":"Buenos Aires","country":"Argentina","phone_number":"123456789"}';
     i++
   }
   if(!past_job_title){
-    $('input[name$="JobTitle"]').val("jobTititle");
+    fillTextInput("JobTitle", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="past_job_title";
     missing_obj[i]['value']='jobTitle';
     i++
   }
   if(!supervisors_name){
-    $('input[id$="SupervisorSurname_NA"]').prop("checked", true);
-    $('input[name$="SupervisorGivenName_NA"]').prop("checked", true);
+    checkBox("SupervisorSurname_NA");
+    checkBox("SupervisorGivenName_NA");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="supervisors_name";
     missing_obj[i]['value']='supervisors name';
     i++
   }
   if(!start_date){
-    $('select[id$="EmpDateFromDay"]').val("1");
-    $('select[id$="EmpDateFromDay"]').change();
-    $('select[id$="EmpDateFromMonth"]').val("1");
-    $('select[id$="EmpDateFromMonth"]').change();
-    $('input[name$="EmpDateFromYear"]').val("2001");
+    setDate("EmpDateFrom", DEFAULT_PAST_DATE);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="start_date";
     missing_obj[i]['value']='1/1/2001';
     i++
   }
   if(!end_date){
-    $('select[id$="EmpDateToDay"]').val("1");
-    $('select[id$="EmpDateToDay"]').change();
-    $('select[id$="EmpDateToMonth"]').val("2");
-    $('select[id$="EmpDateToMonth"]').change();
-    $('input[name$="EmpDateToYear"]').val("2005");
+    setDate("EmpDateTo", DEFAULT_PAST_DATE);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="end_date";
     missing_obj[i]['value']='1/1/2005';
     i++
   }
   if(!past_duties){
-    $('textarea[name$="DescribeDuties"]').text("past duties");
+    fillTextarea("DescribeDuties", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="past_duties";
     missing_obj[i]['value']='past duties';
     i++
   }
   if(!previous_education){
-    $('input[id$="OtherEduc_1"]').prop("checked", true);
+    checkBox("OtherEduc_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previous_education";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!previous_school_name){
-    $('input[name$="SchoolName"]').val("SchoolName");
+    fillTextInput("SchoolName", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previous_school_name";
     missing_obj[i]['value']='school name';
     i++
   }
   if(!previous_school_address){
-    $('input[name$="SchoolAddr1"]').val("street");
-    $('input[name$="SchoolAddr2"]').val("");
-    $('input[name$="SchoolCity"]').val("city");
-    $('input[id$="EDUC_INST_POSTAL_CD_NA"]').prop("checked", true);
-    $('input[id$="EDUC_INST_ADDR_STATE_NA"]').prop("checked", true);
-    $('select[id$="SchoolCountry"]').val("ARG");
-    $('select[id$="SchoolCountry"]').change();
+    setAddressValue("School", DEFAULT_ADDRESS, false, "EDUC_INST");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previous_school_address";
     missing_obj[i]['value']='{"street":"Moldes 1469","line2":"","zip":"1426","city":"Buenos Aires","country":"Argentina"}';
     i++
   }
   if(!previous_course_study){
-    $('input[name$="SchoolCourseOfStudy"]').val("law");
+    fillTextInput("SchoolCourseOfStudy", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previous_course_study";
     missing_obj[i]['value']='law';
     i++
   }
   if(!school_start){
-    $('select[id$="SchoolFromDay"]').val("1");
-    $('select[id$="SchoolFromDay"]').change();
-    $('select[id$="SchoolFromMonth"]').val("1");
-    $('select[id$="SchoolFromMonth"]').change();
-    $('input[name$="SchoolFromYear"]').val("2001");
+    setSelectValue("SchoolFrom", DEFAULT_PAST_DATE);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="school_start";
     missing_obj[i]['value']='1/1/2001';
     i++
   }
   if(!school_end){
-    $('select[id$="SchoolToDay"]').val("1");
-    $('select[id$="SchoolToDay"]').change();
-    $('select[id$="SchoolToMonth"]').val("2");
-    $('select[id$="SchoolToMonth"]').change();
-    $('input[name$="SchoolToYear"]').val("2005");
+    setSelectValue("SchoolTo", DEFAULT_PAST_DATE);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="school_end";
     missing_obj[i]['value']='1/1/2005';
@@ -1788,112 +1288,82 @@ function fillOutPageWorkEducation2Old(personalData) {
 }
 
 function fillOutPageWorkEducation3Old(personalData) {
-  var clan_yn= false,languages=false,previous_countries_list=false,charitable_yn=false,firearms_yn=false,military_yn=false,guerilla_yn=false;
+  var clan_yn= false,languages=false,travel_yn=false,previous_countries_list=false,charitable_yn=false,charitable_name=false,firearms_yn=false,military_yn=false,guerilla_yn=false;
   for(var i in personalData){
     var interaction = personalData[i].interaction, value = personalData[i].value;
     if(interaction == "clan_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="CLAN_TRIBE_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="CLAN_TRIBE_IND_0"]').prop("checked", true);
-      }
-      clan_yn = true;
+      clan_yn = checkYesNo("CLAN_TRIBE_IND", value);
     }
     if(interaction == "languages"){
-      $('input[name$="LANGUAGE_NAME"]').val(personalData[i].value.trim().latinize());
-      languages = true;
+      languages = fillTextInput("LANGUAGE_NAME", value);
+    }
+    if (interaction == "travel_yn") {
+      travel_yn = checkYesNo("COUNTRIES_VISITED_IND", value);
     }
     if(interaction == "previous_countries_list"){
-      $('input[id$="COUNTRIES_VISITED_IND_0"]').prop("checked", true);
-      $('select[id$="COUNTRIES_VISITED"]').find('option').each(function(){
-        if($(this).text()==personalData[i].value.toUpperCase().trim()){
-          $('select[id$="COUNTRIES_VISITED"]').val($(this).val());
-          $('select[id$="COUNTRIES_VISITED"]').change();
-        }
-      });
-      previous_countries_list = true;
-    }else{
-      $('input[id$="COUNTRIES_VISITED_IND_1"]').prop("checked", true);
+      previous_countries_list = findInSelect("COUNTRIES_VISITED", value);
     }
     if(interaction == "charitable_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="ORGANIZATION_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="ORGANIZATION_IND_0"]').prop("checked", true);
-      }
-      charitable_yn = true;
+      charitable_yn = checkYesNo("charitable_yn", value);
+    }
+    if (interaction == "charitable_name") {
+      charitable_name = fillTextInput("ORGANIZATION_NAME", value);
     }
     if(interaction == "firearms_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="SPECIALIZED_SKILLS_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="SPECIALIZED_SKILLS_IND_0"]').prop("checked", true);
-      }
-      firearms_yn = true;
+      firearms_yn = checkYesNo("SPECIALIZED_SKILLS_IND", value);
     }
     if(interaction == "military_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="MILITARY_SERVICE_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="MILITARY_SERVICE_IND_0"]').prop("checked", true);
-      }
-      military_yn = true;
+      military_yn = checkYesNo("MILITARY_SERVICE_IND", value);
     }
     if(interaction == "guerilla_yn"){
-      if(personalData[i].value=="No"){
-        $('input[id$="INSURGENT_ORG_IND_1"]').prop("checked", true);
-      }else{
-        $('input[id$="INSURGENT_ORG_IND_0"]').prop("checked", true);
-      }
-      guerilla_yn = true;
+      guerilla_yn = checkYesNo("INSURGENT_ORG_IND", value);
     }
   }
   var missing_obj = [];
   var i =0;
   if(!clan_yn){
-    $('input[id$="CLAN_TRIBE_IND_1"]').prop("checked", true);
+    checkBox("CLAN_TRIBE_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="clan_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!languages){
-    $('input[name$="LANGUAGE_NAME"]').val("english");
+    fillTextInput("LANGUAGE_NAME", DEFAULT_TEXT);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="languages";
     missing_obj[i]['value']='english';
     i++
   }
   if(!previous_countries_list){
-    $('input[id$="COUNTRIES_VISITED_IND_1"]').prop("checked", true);
     missing_obj[i] = {}
     missing_obj[i]['interaction']="previous_countries_list";
     missing_obj[i]['value']='Bolivia/Australia/Russia...';
     i++
   }
   if(!charitable_yn){
-    $('input[id$="ORGANIZATION_IND_1"]').prop("checked", true);
+    checkBox("ORGANIZATION_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="charitable_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!firearms_yn){
-    $('input[id$="SPECIALIZED_SKILLS_IND_1"]').prop("checked", true);
+    checkBox("SPECIALIZED_SKILLS_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="firearms_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!military_yn){
-    $('input[id$="MILITARY_SERVICE_IND_1"]').prop("checked", true);
+    checkBox("MILITARY_SERVICE_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="military_yn";
     missing_obj[i]['value']='Yes/No';
     i++
   }
   if(!guerilla_yn){
-    $('input[id$="INSURGENT_ORG_IND_1"]').prop("checked", true);
+    checkBox("INSURGENT_ORG_IND_1");
     missing_obj[i] = {}
     missing_obj[i]['interaction']="guerilla_yn";
     missing_obj[i]['value']='Yes/No';
@@ -1901,6 +1371,7 @@ function fillOutPageWorkEducation3Old(personalData) {
   }
 }
 
+// TODO
 function fillOutPageSecurityandBackground1Old(personalData) {
   var disease_yn= false,mental_yn=false,drug_yn=false,charitable_yn=false,firearms_yn=false,military_yn=false,guerilla_yn=false;
 
@@ -2381,124 +1852,5 @@ function fillOutPageSecurityandBackground5Old(personalData) {
     missing_obj[i]['interaction']="reimbursing_yn";
     missing_obj[i]['value']='Yes/No';
     i++
-  }
-}
-
-function fillOutPagePrevSpouseOld(personalData) {
-  var spouse_first= false,spouse_last=false,spouse_dob=false,spouse_birth_city=false,spouse_nationality=false,spouse_birth_country=false,ex_start_date=false, ex_end_date=false,mariage_end_why=false,mariage_end_country=false;
-  $('input[name$="NumberOfPrevSpouses"]').val("1");
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
-    if(interaction == "spouse_first"){
-      $('input[name$="SURNAME"]').val(personalData[i].value);
-      spouse_first = true;
-    }
-    if(interaction == "spouse_last"){
-      $('input[name$="GIVEN_NAME"]').val(personalData[i].value);
-      spouse_last = true;
-    }
-    if(interaction == "spouse_dob"){
-      var birth_date = personalData[i].value.split("/");
-      //console.log(birth_date);
-      var birth_day = birth_date[0];
-      $('select[id$="DOBDay"]').find('option').each(function(){
-        if($(this).text()==birth_day){
-          $('select[id$="DOBDay"]').val($(this).val());
-          $('select[id$="DOBDay"]').change();
-        }
-      });
-      var birth_month = birth_date[1];
-      $('select[id$="DOBMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(birth_month)){
-          $('select[id$="DOBMonth"]').val($(this).val());
-          $('select[id$="DOBMonth"]').change();
-        }
-      });
-      var spouse_year = "";
-      if(parseInt(birth_date[2])<100) spouse_year="19"+birth_date[2];
-      $('input[name$="DOBYear"]').val(spouse_year);
-      spouse_dob = true;
-    }
-    if(interaction == "spouse_nationality"){
-      var country = personalData[i].value.toUpperCase().trim();
-      //console.log(country);
-      $('select[id$="SpouseNatDropDownList"]').find('option').each(function(){
-        if($(this).text()==country){
-          $('select[id$="SpouseNatDropDownList"]').val($(this).val());
-          $('select[id$="SpouseNatDropDownList"]').change();
-        }
-      });
-      spouse_nationality = true;
-    }
-    if(interaction == "spouse_birth_city"){
-      $('input[name$="SpousePOBCity"]').val(personalData[i].value);
-      spouse_birth_city = true;
-    }
-    if(interaction == "spouse_birth_country"){
-      var country = personalData[i].value.toUpperCase().trim();
-      //console.log(country);
-      $('select[id$="SpousePOBCountry"]').find('option').each(function(){
-        if($(this).text()==country){
-          $('select[id$="SpousePOBCountry"]').val($(this).val());
-          $('select[id$="SpousePOBCountry"]').change();
-        }
-      });
-      spouse_birth_country = true;
-    }
-    if(interaction == "ex_start_date"){
-      var start_date = personalData[i].value.split("/");
-      //console.log(start_date);
-      var start_day = start_date[0];
-      $('select[id$="DomDay"]').find('option').each(function(){
-        if($(this).text()==start_day){
-          $('select[id$="DomDay"]').val($(this).val());
-          $('select[id$="DomDay"]').change();
-        }
-      });
-      var start_month = start_date[1];
-      $('select[id$="DomMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(start_month)){
-          $('select[id$="DomMonth"]').val($(this).val());
-          $('select[id$="DomMonth"]').change();
-        }
-      });
-      $('input[name$="DomYear"]').val(start_date[2]);
-      ex_start_date = true;
-    }
-    if(interaction == "ex_end_date"){
-      var end_date = personalData[i].value.split("/");
-      //console.log(end_date);
-      var end_day = end_date[0];
-      $('select[id$="DomEndDay"]').find('option').each(function(){
-        if($(this).text()==end_day){
-          $('select[id$="DomEndDay"]').val($(this).val());
-          $('select[id$="DomEndDay"]').change();
-        }
-      });
-      var end_month = end_date[1];
-      $('select[id$="DomEndMonth"]').find('option').each(function(index, value){
-        if(index==parseInt(end_month)){
-          $('select[id$="DomEndMonth"]').val($(this).val());
-          $('select[id$="DomEndMonth"]').change();
-        }
-      });
-      $('input[name$="DomEndYear"]').val(end_date[2]);
-      ex_end_date = true;
-    }
-    if(interaction == "mariage_end_why"){
-      $('textarea[name$="HowMarriageEnded"]').text(personalData[i].value);
-      mariage_end_why = true;
-    }
-    if(interaction == "mariage_end_country"){
-      var country = personalData[i].value.toUpperCase().trim();
-      //console.log(country);
-      $('select[id$="MarriageEnded_CNTRY"]').find('option').each(function(){
-        if($(this).text()==country){
-          $('select[id$="MarriageEnded_CNTRY"]').val($(this).val());
-          $('select[id$="MarriageEnded_CNTRY"]').change();
-        }
-      });
-      mariage_end_country = true;
-    }
   }
 }
