@@ -1,13 +1,9 @@
 function clickNext() {
-  setTimeout(function(){
-    $('input[name$="UpdateButton3"]').click();
-  }, 1000);
+  $('input[name$="UpdateButton3"]').click();
 }
 
 function clickContinue() {
-  setTimeout(function(){
-    $('input[name$="btnContinue"]').click();
-  }, 500);
+  $('input[name$="btnContinue"]').click();
 }
 
 function checkBox(boxName) {
@@ -55,12 +51,16 @@ function fillTextInput(inputName, rawValue, latinize=true, alphanumerize=true) {
 }
 
 function fillNumberInput(inputName, rawValue) {
+  console.log(rawValue);
   var value = rawValue.trim().numerize(), maxLength;
+  console.log(value);
   // Check if input has a character limit
   maxLength = $('input[name$="' + inputName + '"]').attr('maxlength');
   if (maxLength) {
     value = value.substring(0, parseInt(maxLength));
   }
+
+  console.log("VALUE", value);
 
   $('input[name$="' + inputName + '"]').val(value.trim().numerize().substring(0, 20));
   return true;
@@ -171,44 +171,6 @@ function setAddressValue(inputName, addressJSON, stateSelect=false, secondSelect
   return true;
 }
 
-function setSpecialAddress(inputName, addressJSON) {
-  var address = JSON.parse(addressJSON);
-  if(address['street'].trim() && address['street'].trim()!=""){
-    $('input[name$="EmployerStreetAddress1"]').val(address['street'].trim());
-  }else{
-    $('input[name$="EmployerStreetAddress1"]').val("street");
-  }
-  $('input[name$="EmployerStreetAddress2"]').val(address['line2'].trim());
-  $('input[name$="EmployerCity"]').val(address['city'].trim());
-  if(address['city'].trim() && address['city'].trim()!=""){
-    $('input[name$="EmployerCity"]').val(address['city'].trim());
-  }else{
-    $('input[name$="EmployerCity"]').val("city");
-  }
-  if(address['zip'] && address['zip'].trim()!=""){
-    $('input[name$="PREV_EMPL_ADDR_POSTAL_CD"]').val(address['zip']);
-  }else{
-    $('input[id$="PREV_EMPL_ADDR_POSTAL_CD_NA"]').prop("checked", true);
-  }
-  if(address['state']){
-    $('input[name$="PREV_EMPL_ADDR_STATE"]').val(address['state']);
-  }else{
-    $('input[id$="PREV_EMPL_ADDR_STATE_NA"]').prop("checked", true);
-  }
-  var country_status = false;
-  $('select[id$="DropDownList2"]').find('option').each(function(){
-    if($(this).text()==address['country'].toUpperCase().trim()){
-      $('select[id$="DropDownList2"]').val($(this).val());
-      $('select[id$="DropDownList2"]').change();
-      country_status=true;
-    }
-  });
-  if(!country_status){
-    $('select[id$="DropDownList2"]').val("ARG");
-    $('select[id$="DropDownList2"]').change();
-  }
-}
-
 function fillSSN(inputName, value) {
   var ssn_number = value.split("-");
   fillNumberInput(inputName + "1", ssl_number[0]);
@@ -217,6 +179,23 @@ function fillSSN(inputName, value) {
   return true;
 }
 
-function translate(value) {
+function translate(query) {
   // https://translation.googleapis.com/language/translate/v2?key=AIzaSyDX9VA2TeIwFjX4buWpzzxIZ1djQUsR-L4&source=ES&target=EN&q=HOLA
+  $.ajax({
+    method: "GET",
+    async: false,
+    url: "https://translation.googleapis.com/language/translate/v2",
+    data: {
+      key: "AIzaSyDX9VA2TeIwFjX4buWpzzxIZ1djQUsR-L4",
+      source: "ES",
+      target: "EN",
+      q: query
+    },
+    success: function(response){
+      console.log(response);
+		},
+		error: function(error) {
+			console.log(error);
+		}
+  });
 }

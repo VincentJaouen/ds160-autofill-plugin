@@ -90,7 +90,7 @@ function getStore(key, callback) {
 }
 
 String.prototype.alphanumerize = function() { return this.replace(/[^A-Za-z0-9\s\.]+/g, ''); }
-String.prototype.numerize = function () { return this.replace(/[^0-9\.]+/g, ''); }
+String.prototype.numerize = function () { return this.replace(/[^0-9]+/g, ''); }
 var Latinise={};Latinise.latin_map={"Á":"A",
 	"Ă":"A",
 	"Ắ":"A",

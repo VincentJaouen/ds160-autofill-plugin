@@ -26,7 +26,7 @@ function fillPageFromMapper(mapper, personalData) {
 
 function fillOutPageSecureQuestionOld(personalData) {
   fillTextInput("txtAnswer", 'OLIVER');
-  return false;
+  clickContinue();
 }
 
 function fillOutPagePersonal1(personalData) {
@@ -76,100 +76,32 @@ function fillOutPageAddressPhone(personalData) {
   fillPageFromMapper(mapper, personalData);
 }
 
-function fillOutPagePptVisa(personalData) {
-
-}
-
-function fillOutPageTravel(personalData) {
-
-}
-
-function fillOutPageTravelCompanions(personalData) {
-
-}
-
-function fillOutPagePreviousUSTravel(personalData) {
-
-}
-
-function fillOutPageUSContact(personalData) {
-
-}
-
-function fillOutPageSpouse(personalData) {
-
-}
-
-function fillOutPageRelatives(personalData) {
-
-}
-
-function fillOutPageWorkEducation1(personalData) {
-
-}
-
-function fillOutPageWorkEducation2(personalData) {
-
-}
-
-function fillOutPageWorkEducation3(personalData) {
-
-}
-
-function fillOutPageSecurityandBackground1(personalData) {
-
-}
-
-function fillOutPageSecurityandBackground2(personalData) {
-
-}
-
-function fillOutPageSecurityandBackground3(personalData) {
-
-}
-
-function fillOutPageSecurityandBackground4(personalData) {
-
-}
-
-function fillOutPageSecurityandBackground5(personalData) {
-
-}
-
-function fillOutPagePrevSpouse(personalData) {
-
-}
-
-function fillOutPageExchangeVisitor3(personalData) {
-
-}
-
 function fillOutPageReviewPersonalOld(personalData) {
-  clickContinue();
+  clickNext();
 }
 
 function fillOutPageReviewTravelOld(personalData) {
-  clickContinue();
+  clickNext();
 }
 
 function fillOutPageReviewUSContactOld(personalData) {
-  clickContinue();
+  clickNext();
 }
 
 function fillOutPageReviewFamilyOld(personalData) {
-  clickContinue();
+  clickNext();
 }
 
 function fillOutPageReviewWorkEducationOld(personalData) {
-  clickContinue();
+  clickNext();
 }
 
 function fillOutPageReviewSecurityOld(personalData) {
-  clickContinue();
+  clickNext();
 }
 
 function fillOutPageReviewLocationOld(personalData) {
-  clickContinue();
+  clickNext();
 }
 
 function fillOutPageSignCertifyOld(personalData) {

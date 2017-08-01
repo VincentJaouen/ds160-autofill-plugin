@@ -45,11 +45,7 @@ function fillForm(data) {
     // If function is found for this page, call it
     var fn = window[callbackName];
     if(typeof fn === 'function') {
-        if(fn(data) === false) {
-          clickContinue();
-        } else {
-          clickNext();
-        }
+        fn(data);
     }
   }
 }
