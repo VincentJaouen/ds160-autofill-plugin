@@ -51,16 +51,12 @@ function fillTextInput(inputName, rawValue, latinize=true, alphanumerize=true) {
 }
 
 function fillNumberInput(inputName, rawValue) {
-  console.log(rawValue);
   var value = rawValue.trim().numerize(), maxLength;
-  console.log(value);
   // Check if input has a character limit
   maxLength = $('input[name$="' + inputName + '"]').attr('maxlength');
   if (maxLength) {
     value = value.substring(0, parseInt(maxLength));
   }
-
-  console.log("VALUE", value);
 
   $('input[name$="' + inputName + '"]').val(value.trim().numerize().substring(0, 20));
   return true;
@@ -129,9 +125,11 @@ function setAddressValue(inputName, addressJSON, stateSelect=false, secondSelect
   if(address['street'].trim() != "") {
     fillTextInput(inputName + "_LN1", address['street']);
     fillTextInput(inputName + "StreetAddress1", address['street']);
+    fillTextInput(inputName + "Addr1", address['street']);
   } else {
     fillTextInput(inputName + "_LN1", "MISSING");
     fillTextInput(inputName + "StreetAddress1", "MISSING");
+    fillTextInput(inputName + "Addr2", address['street']);
   }
   fillTextInput(inputName + "_LN2", address['line2']);
   fillTextInput(inputName + "StreetAddress2", address['line2']);
@@ -163,6 +161,7 @@ function setAddressValue(inputName, addressJSON, stateSelect=false, secondSelect
     }
   } else {
     checkBox(stateSelector + "_NA");
+    checkBox(secondSelector + "_ADDR_STATE_NA");
   }
   var country_status = setSelectValue("ddlCountry", address['country']);
   if(!country_status && setSelectValue(inputName + "Country", address['country']) && !setSelectValue("DropDownList2", address['country'])) {

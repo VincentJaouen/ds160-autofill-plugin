@@ -616,6 +616,9 @@ function fillOutPageRelativesOld(personalData) {
     if(interaction == "father_location"){
       father_location = checkYesNo("FATHER_LIVE_IN_US_IND", value);
     }
+    if(interaction == "father_status") {
+      findInSelect("FATHER_US_STATUS", value);
+    }
     if(interaction == "mother_last_name"){
       mother_last_name = fillTextInput("MOTHER_SURNAME", value);
     }
@@ -627,6 +630,9 @@ function fillOutPageRelativesOld(personalData) {
     }
     if(interaction == "mother_location"){
       mother_location = checkYesNo("MOTHER_LIVE_IN_US_IND", value);
+    }
+    if(interaction == "mother_status") {
+      findInSelect("MOTHER_US_STATUS", value);
     }
     if(interaction == "US_IMrelatives_yn"){
       US_IMrelatives_yn = checkYesNo("US_IMMED_RELATIVE_IND", value);
@@ -872,7 +878,7 @@ function fillOutPageWorkEducation2Old(personalData) {
       previous_school_name = fillTextInput("SchoolName", value);
     }
     if(interaction == "previous_school_address"){
-      previous_school_address = setAddressValue("School", value, false, "EDUC_INST_ADDR");
+      previous_school_address = setAddressValue("School", value, false, "EDUC_INST");
     }
     if(interaction == "previous_course_study"){
       previous_course_study = fillTextInput("SchoolCourseOfStudy", value);
@@ -950,7 +956,7 @@ function fillOutPageWorkEducation3Old(personalData) {
       previous_countries_list = findInSelect("COUNTRIES_VISITED", value);
     }
     if(interaction == "charitable_yn"){
-      charitable_yn = checkYesNo("charitable_yn", value);
+      charitable_yn = checkYesNo("ORGANIZATION_IND", value);
     }
     if (interaction == "charitable_name") {
       charitable_name = fillTextInput("ORGANIZATION_NAME", value);
