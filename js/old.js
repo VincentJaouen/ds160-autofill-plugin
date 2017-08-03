@@ -292,6 +292,7 @@ function fillOutPagePptVisaOld(personalData) {
 
 function fillOutPageTravelOld(personalData) {
   var trippayment = false,arrival_date=false,time_in_country=false,time_in_country_frame=false,purposeoftrip=false,otherpurpose=false,staystreet=false,staycity=false,staystate=false, stayzipcode=false;
+  var formatted = formatData(personalData);
   for(var i in personalData){
     var interaction = personalData[i].interaction, value = personalData[i].value;
     if(interaction == "purposeoftrip") {
@@ -299,18 +300,6 @@ function fillOutPageTravelOld(personalData) {
     }
     if(interaction == "otherpurpose") {
       otherpurpose = setSelectValue("OtherPurpose", value);
-    }
-    if(interaction == "staystreet") {
-      staystreet = fillTextInput("StreetAddress1", value);
-    }
-    if(interaction == "staycity"){
-      staycity = fillTextInput("City", value);
-    }
-    if(interaction == "staystate"){
-      staystate = fillTextInput("TravelState", value);
-    }
-    if(interaction=="stayzipcode"){
-      stayzipcode = fillTextInput("ZIPCode", value);
     }
     if(interaction == "trippayment") {
       switch(value) {
@@ -320,6 +309,42 @@ function fillOutPageTravelOld(personalData) {
         case "employer":
         case "company":
           trippayment = setSelectValue("WhoIsPaying", "C");
+          break;
+        case "mother":
+          trippayment = setSelectValue("WhoIsPaying", "O");
+          fillTextInput("PayerSurname", formatted.mother_last_name);
+          fillTextInput("PayerGivenName", formatted.mother_first_name);
+          setSelectValue("PayerRelationship", "P");
+          if (isApproxSame(formatted.payee_address, formatted.user_address)) {
+            checkYesNo("PayerAddrSameAsInd", "Yes");
+          }
+          else {
+            checkYesNo("PayerAddrSameAsInd", "No");
+          }
+          break;
+        case "father":
+          trippayment = setSelectValue("WhoIsPaying", "O");
+          fillTextInput("PayerSurname", formatted.father_last_name);
+          fillTextInput("PayerGivenName", formatted.father_first_name);
+          setSelectValue("PayerRelationship", "P");
+          if (isApproxSame(formatted.payee_address, formatted.user_address)) {
+            checkYesNo("PayerAddrSameAsInd", "Yes");
+          }
+          else {
+            checkYesNo("PayerAddrSameAsInd", "No");
+          }
+          break;
+        case "spouse":
+          trippayment = setSelectValue("WhoIsPaying", "O");
+          fillTextInput("PayerSurname", formatted.spouse_last);
+          fillTextInput("PayerGivenName", formatted.spouse_first);
+          setSelectValue("PayerRelationship", "S");
+          if (isAddressApproxSame(formatted.payee_address, formatted.user_address)) {
+            checkYesNo("PayerAddrSameAsInd", "Yes");
+          }
+          else {
+            checkYesNo("PayerAddrSameAsInd", "No");
+          }
           break;
         default:
           trippayment = setSelectValue("WhoIsPaying", "O");
@@ -338,7 +363,8 @@ function fillOutPageTravelOld(personalData) {
       fillTextInput("PAYER_EMAIL_ADDR", value, false, false);
     }
     if (interaction == "payee_address") {
-      setAddressValue("Payer", value);
+      payee_address = setAddressValue("Payer", value);
+      checkBox("PayerStateProvince");
     }
     if(interaction == "arrival_date"){
       checkBox("SpecificTravel_1");
@@ -359,16 +385,16 @@ function fillOutPageTravelOld(personalData) {
     setSelectValue("OtherPurpose", "B1-B2");
   }
   if(!staystreet){
-    fillTextInput("StreetAddress1", DEFAULT_TEXT);
+    fillTextInput("tbxStreetAddress1", DEFAULT_TEXT);
   }
   if(!staycity){
-    fillTextInput("City", DEFAULT_TEXT);
+    fillTextInput("tbxCity", DEFAULT_TEXT);
   }
   if(!staystate){
     setSelectValue("TravelState", "AL");
   }
   if(!stayzipcode){
-    fillNumberInput("ZIPCode", DEFAULT_SMALL_NUMBER);
+    fillNumberInput("tbZIPCode", DEFAULT_SMALL_NUMBER);
   }
   if(!trippayment) {
     setSelectValue("WhoIsPaying", "S");

@@ -4,17 +4,22 @@ var embassyURLMapper = {
   "COLOMBIA, BOGOTA": "https://ais.usvisa-info.com/en-co/niv/information/niv_questions"
 }
 
+function setEmbassyDOB(dob) {
+  var dates = dob.split('/');
+  $("#applicant_date_of_birth_3i").val(parseInt(dates[0]));
+  $("#applicant_date_of_birth_2i").val(parseInt(dates[1]));
+  $("#applicant_date_of_birth_1i").val(parseInt(dates[2]));
+}
+
 function fillForm(data) {
   // If embassy page
   if (location.href.indexOf("ais.usvisa-info.com") != -1) {
     var info = formatData(data);
 
     if (location.href == "https://ais.usvisa-info.com/") {
-      console.log('embassy');
       window.location.href = embassyURLMapper[embassy_choice];
     }
     else if (location.href.indexOf("information/niv_questions") != -1) {
-      console.log('hello');
       $('label[for="answer_completed_ds160_form"]').click();
       $('input[name="commit"]').click();
     }
@@ -28,6 +33,30 @@ function fillForm(data) {
       $('#user_password_confirmation').val('oliverai');
       $('label[for="policy_confirmed"]').click();
       $('.recaptcha-checkbox-checkmark').click();
+    }
+    else if (location.href.indexOf("applicants/new") != -1) {
+      var email = "application+" + info.first_name.replace(/\s/g,'').latinize() + info.last_name.replace(/\s/g,'').latinize() + '@oliver.ai';
+      fillTextInput("applicant[first_name]", info.first_name, false, false);
+      fillTextInput("applicant[last_name]", info.last_name, false, false);
+      findInSelect("applicant_passport_country_code", info.passport_country);
+      findInSelect("applicant_birth_country_code", info.country_of_birth);
+      fillTextInput("applicant[passport_number]", info.passport_number);
+      setSelectValue("applicant_visa_class_id", "B1/B2 Business & Tourism (Temporary visitor)");
+      setEmbassyDOB(info.DOB);
+      findInSelect("applicant_gender", info.gender);
+      fillTextInput("applicant[phone1]", info.phone_number, false, false);
+      fillTextInput("applicant[email_address]", email, false, false);
+
+      if (info.ustravel_yn == "No") {
+        checkBox("applicant_is_a_renewal_false");
+      }
+      else {
+        checkBox("applicant_is_a_renewal_true");
+      }
+    }
+    else if (location.href.indexOf("courier") != -1) {
+      findInSelect("group_delivery_address_id", info.pickup_location_Argentina);
+      fillTextInput("group[care_of]", info.PickUp_Person);
     }
 
     return true;

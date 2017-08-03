@@ -146,6 +146,7 @@ function setAddressValue(inputName, addressJSON, stateSelect=false, secondSelect
   }
   if (address['zip']) {
     fillTextInput(zipSelector, address['zip'].numerize());
+    fillTextInput(inputName + "PostalZIPCode", address['zip'].numerize());
   } else {
     checkBox(zipSelector + "_NA");
   }
@@ -197,4 +198,9 @@ function translate(query) {
 			console.log(error);
 		}
   });
+}
+
+function isApproxSame(addr1, addr2) {
+  var address1 = JSON.parse(addr1), address2 = JSON.parse(addr2);
+  return address1['street'].alphanumerize().latinize().toUpperCase() == address2['street'].alphanumerize().latinize().toUpperCase();
 }
