@@ -33,6 +33,11 @@ function checkGender(inputName, value) {
 }
 
 function fillTextInput(inputName, rawValue, latinize=true, alphanumerize=true) {
+  if (!rawValue) {
+    console.log(inputName + " empty");
+    return false;
+  }
+
   var value = rawValue.trim().replace(/\s\s+/g, ' '), maxLength;
   if (latinize) {
     value = value.latinize();
@@ -51,6 +56,11 @@ function fillTextInput(inputName, rawValue, latinize=true, alphanumerize=true) {
 }
 
 function fillNumberInput(inputName, rawValue) {
+  if (!rawValue) {
+    console.log(inputName + " empty");
+    return false;
+  }
+
   var value = rawValue.trim().numerize(), maxLength;
   // Check if input has a character limit
   maxLength = $('input[name$="' + inputName + '"]').attr('maxlength');
@@ -200,7 +210,7 @@ function translate(query) {
   });
 }
 
-function isApproxSame(addr1, addr2) {
+function isAddressApproxSame(addr1, addr2) {
   var address1 = JSON.parse(addr1), address2 = JSON.parse(addr2);
   return address1['street'].alphanumerize().latinize().toUpperCase() == address2['street'].alphanumerize().latinize().toUpperCase();
 }

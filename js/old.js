@@ -315,7 +315,7 @@ function fillOutPageTravelOld(personalData) {
           fillTextInput("PayerSurname", formatted.mother_last_name);
           fillTextInput("PayerGivenName", formatted.mother_first_name);
           setSelectValue("PayerRelationship", "P");
-          if (isApproxSame(formatted.payee_address, formatted.user_address)) {
+          if (isAddressApproxSame(formatted.payee_address, formatted.user_address)) {
             checkYesNo("PayerAddrSameAsInd", "Yes");
           }
           else {
@@ -327,7 +327,7 @@ function fillOutPageTravelOld(personalData) {
           fillTextInput("PayerSurname", formatted.father_last_name);
           fillTextInput("PayerGivenName", formatted.father_first_name);
           setSelectValue("PayerRelationship", "P");
-          if (isApproxSame(formatted.payee_address, formatted.user_address)) {
+          if (isAddressApproxSame(formatted.payee_address, formatted.user_address)) {
             checkYesNo("PayerAddrSameAsInd", "Yes");
           }
           else {
@@ -436,6 +436,13 @@ function fillOutPageTravelCompanionsOld(personalData) {
     }
     if(interaction == "travel_companion_relation") {
       travel_companion_relation = findInSelect("TCRelationship", value);
+      var formatted = formatData(personalData);
+      switch(value) {
+        case "spouse":
+          fillTextInput("Surname", formatted.spouse_last);
+          fillTextInput("GivenName", formatted.spouse_first);
+          break;
+      }
     }
   }
 
