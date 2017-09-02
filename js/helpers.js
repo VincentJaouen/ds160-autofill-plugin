@@ -1,5 +1,5 @@
 function clickNext() {
-  $('input[name$="UpdateButton3"]').click();
+  // $('input[name$="UpdateButton3"]').click();
 }
 
 function clickContinue() {
