@@ -1,9 +1,6 @@
-const DS160_FIRST_PAGE_URL = "https://ceac.state.gov/GenNIV/General/complete/complete_personal.aspx?node=Personal1";
-
 jQuery(document).ready(function () {
 	// chrome.storage.local.clear();
 
-	console.log('ready popupjs');
 	ifStarted(showStopButton, showStartButton);
 
 	var tabId = "";
@@ -105,7 +102,7 @@ function showUserName(userData) {
 }
 
 function isOnDS160Form(tab) {
-	return tab.url.indexOf("ceac.state.gov/GenNIV") != -1;
+	return (tab.url.indexOf("ceac.state.gov/GenNIV") != -1 || tab.url.indexOf("ais.usvisa-info.com") != -1);
 }
 
 function showStopButton() {
