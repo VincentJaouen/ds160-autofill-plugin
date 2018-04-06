@@ -1,6 +1,5 @@
-function fillPageFromMapper(mapper, personalData) {
-  var data = formatData(personalData);
-
+function fillPageFromMapper(mapper, data) {
+  console.log(data);
   for (var interaction in mapper) {
     var input = mapper[interaction], value = data[interaction], missing = true;
     // If data is given and not empty, fill out input in form
@@ -25,11 +24,12 @@ function fillPageFromMapper(mapper, personalData) {
 }
 
 function fillOutPageSecureQuestionOld(personalData) {
-  fillTextInput("txtAnswer", 'OLIVER');
-  clickContinue();
+  fillTextInput("txtAnswer", 'PASSPAL');
+  // clickContinue();
 }
 
 function fillOutPagePersonal1(personalData) {
+  console.log('fillOutPagePersonal1');
   var mapper = {
     first_name: { selector: "APP_GIVEN_NAME", helper: "fillTextInput" },
     last_name: { selector: "APP_SURNAME", helper: "fillTextInput" },

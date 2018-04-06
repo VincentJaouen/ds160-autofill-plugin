@@ -11,10 +11,9 @@ function setEmbassyDOB(dob) {
   $("#applicant_date_of_birth_1i").val(parseInt(dates[2]));
 }
 
-function fillForm(data) {
+function fillForm(info) {
   // If embassy page
   if (location.href.indexOf("ais.usvisa-info.com") != -1) {
-    var info = formatData(data);
 
     if (location.href == "https://ais.usvisa-info.com/") {
       window.location.href = embassyURLMapper[embassy_choice];
@@ -74,7 +73,7 @@ function fillForm(data) {
     // If function is found for this page, call it
     var fn = window[callbackName];
     if(typeof fn === 'function') {
-        fn(data);
+        fn(info);
     }
   }
 }
@@ -87,7 +86,7 @@ $( document ).ready(function() {
   chrome.runtime.onMessage.addListener(function(request, sender) {
     if(request.from == "background" && request.data) {
       var personalData = request.data;
-      storeObject('userData', personalData, fillForm);
+      storeObject('data', personalData, fillForm);
     }
    });
 });

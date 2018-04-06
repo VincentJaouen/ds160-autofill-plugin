@@ -7,18 +7,14 @@ function createTab(){
 	});
 }
 
-function fetchUserData(userId, tabId, sendResponse) {
+function fetchApplicationData(applicationId, tabId, sendResponse) {
 	$.ajax({
 		type: "GET",
 		dataType: 'json',
-		url: getAPIUrl(userId),
-		success: function(data){
-			if(data.length > 0){
-				startForm(data, function() {
-					chrome.tabs.sendMessage(tabId, {from: "background", data: data});
-					sendResponse({"userData": data});
-				});
-			}
+		url: "https://passpal.co/applications/" + applicationId + '.json',
+		success: function(application) {
+      console.log('application', application);
+			fetchGroupData(application.user_id, application.data, tabId, sendResponse);
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
 			console.log("error " + textStatus);
@@ -26,34 +22,30 @@ function fetchUserData(userId, tabId, sendResponse) {
 	});
 }
 
-function getAPIUrl(userId) {
-	return "https://www.oliver.ai/process_users/" + userId + '.json';
+function fetchGroupData(userId, appData, tabId, sendResponse) {
+  $.ajax({
+    type: "GET",
+    dataType: 'json',
+    url: "https://passpal.co/users/data?user_id=" + userId,
+    success: function(userData) {
+      console.log('userData', userData);
+      var data = Object.assign(appData, userData);
+			startForm(data, function() {
+			  chrome.tabs.sendMessage(tabId,
+          { from: "background", data: data});
+				sendResponse({"data": data});
+			});
+    }
+  });
+}
+
+function getAPIUrl(applicationId) {
+	return "https://passpal.co/applications/" + applicationId + '.json';
 }
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-  if (msg.from === 'popup' && msg.tabId && msg.userId) {
-		fetchUserData(msg.userId, msg.tabId, sendResponse);
-  } else if (msg.from === "content" && msg.data) {
-		var missing_data = localStorage.getItem("missing_data");
-		if (msg.data.length) {
-			if (missing_data) {
-				var firstData = JSON.parse(missing_data);
-				var new_Data = [];
-				for (var i in firstData) {
-					 var shared = false;
-					 for (var j in msg.data)
-							 if (msg.data[j].interaction == firstData[i].interaction) {
-									 shared = true;
-									 break;
-							 }
-					 if(!shared) new_Data.push(firstData[i]);
-				}
-				new_Data = new_Data.concat(msg.data);
-				localStorage.setItem("missing_data",JSON.stringify(new_Data));
-			}else{
-				localStorage.setItem("missing_data",JSON.stringify(msg.data));
-			}
-		}
+  if (msg.from === 'popup' && msg.tabId && msg.applicationId) {
+		fetchApplicationData(msg.applicationId, msg.tabId, sendResponse);
   }
 
 	return true;

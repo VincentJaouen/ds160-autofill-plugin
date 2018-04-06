@@ -13,9 +13,8 @@ function fillOutPagePersonal1Old(personalData) {
   var first_name = false, last_name =false,gender =false,marital_status =false,city_of_birth =false,state_of_birth =false,country_of_birth =false,DOB =false,alias_yn =false,telecode_yn =false;
   var firstNameValue = '', lastNameValue = '';
 
-  for(var i in personalData) {
-    var interaction = personalData[i].interaction;
-    var value = personalData[i].value;
+  for(var interaction in personalData) {
+    var value = personalData[interaction];
 
     if(interaction == "first_name") {
       fillTextInput("APP_GIVEN_NAME", value);
@@ -97,9 +96,8 @@ function fillOutPagePersonal1Old(personalData) {
 
 function fillOutPagePersonal2Old(personalData) {
   var nationality = false,othernationality_yn=false,other_residence_yn=false,national_id=false,ssn=false,taxidnumber=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction;
-    var value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
 
     if(interaction=="nationality"){
       setSelectValue("ddlAPP_NATL", value);
@@ -126,8 +124,7 @@ function fillOutPagePersonal2Old(personalData) {
       setSelectValue("OthPermResCntry", value);
     }
     if(interaction=="national_id"){
-      fillTextInput("APP_NATIONAL_ID", personalData[i].value.trim().replaceAll(".","").replaceAll("-","").replaceAll("/",""));
-      // $('input[name$="APP_NATIONAL_ID"]').val(personalData[i].value.trim().replaceAll(".","").replaceAll("-","").replaceAll("/",""));
+      fillTextInput("APP_NATIONAL_ID", value.trim().replaceAll(".","").replaceAll("-","").replaceAll("/",""));
       national_id = true;
     }
     if(interaction=="ssn"){
@@ -150,7 +147,7 @@ function fillOutPagePersonal2Old(personalData) {
     checkBox("APP_OTH_NATL_IND_1");
   }
   if(!other_residence_yn){
-    missing_obj[i] = {};
+    missing_obj[interaction] = {};
     checkBox("PermResOtherCntryInd_1");
   }
   if(!national_id){
@@ -168,8 +165,8 @@ function fillOutPagePersonal2Old(personalData) {
 
 function fillOutPageAddressPhoneOld(personalData) {
   var user_address = false,same_mailing_address_yn=false,phone_number=false,second_phone_number=false,work_phone_number=false,user_email=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if (interaction == "user_address") {
       user_address = setAddressValue("APP_ADDR", value);
     }
@@ -217,8 +214,8 @@ function fillOutPageAddressPhoneOld(personalData) {
 
 function fillOutPagePptVisaOld(personalData) {
   var passport_type = false,passport_number=false,passport_book_number=false,passport_city=false,passport_issue=false,passport_expire=false,passport_lost_yn=false, passport_lost_number=false,passport_lost_national=false,Passport_lost_explain=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if (interaction == "passport_type") {
       passport_type = setSelectValue("PPT_TYPE", value);
     }
@@ -231,7 +228,7 @@ function fillOutPagePptVisaOld(personalData) {
       $('input[id$="PPT_BOOK_NUM_NA"]').prop("checked", true);
     }
     if (interaction == "passport_country") {
-      passport_country = setSelectValue("PPT_ISSUED_CNTRY", personalData[i].value);
+      passport_country = setSelectValue("PPT_ISSUED_CNTRY", value);
     }
     if (interaction == "passport_city") {
       passport_city = fillTextInput("PPT_ISSUED_IN_CITY", value);
@@ -246,7 +243,7 @@ function fillOutPagePptVisaOld(personalData) {
       passport_lost_yn = checkYesNo("LOST_PPT_IND", value);
     }
     if(interaction == "passport_lost_number"){
-      $('input[name$="LOST_PPT_NUM"]').val(personalData[i].value);
+      $('input[name$="LOST_PPT_NUM"]').val(value);
       passport_lost_number = fillNumberInput("LOST_PPT_NUM", value);
     }
     if(interaction == "passport_lost_national") {
@@ -292,9 +289,8 @@ function fillOutPagePptVisaOld(personalData) {
 
 function fillOutPageTravelOld(personalData) {
   var trippayment = false,arrival_date=false,time_in_country=false,time_in_country_frame=false,purposeoftrip=false,otherpurpose=false,staystreet=false,staycity=false,staystate=false, stayzipcode=false;
-  var formatted = formatData(personalData);
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "purposeoftrip") {
       purposeoftrip = setSelectValue("PurposeOfTrip", value);
     }
@@ -416,8 +412,8 @@ function fillOutPageTravelOld(personalData) {
 function fillOutPageTravelCompanionsOld(personalData) {
   var travelcompanions_yn = false, grouptravel_yn = false,travel_companion_first=false,travel_companion_last=false,travel_companion_relation=false;
 
-  for(var i in personalData) {
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData) {
+    var value = personalData[interaction];
 
     if(interaction == "travelcompanions_yn") {
       travelcompanions_yn = checkYesNo("OtherPersonsTravelingWithYou", value);
@@ -436,7 +432,6 @@ function fillOutPageTravelCompanionsOld(personalData) {
     }
     if(interaction == "travel_companion_relation") {
       travel_companion_relation = findInSelect("TCRelationship", value);
-      var formatted = formatData(personalData);
       switch(value) {
         case "spouse":
           fillTextInput("Surname", formatted.spouse_last);
@@ -462,8 +457,8 @@ function fillOutPageTravelCompanionsOld(personalData) {
 function fillOutPagePreviousUSTravelOld(personalData) {
   var ustravel_yn = false,previous_ustrip_date=false,previous_ustrip_duration=false,driverslicense_yn=false,previous_visa_yn=false,entryrefusal_yn=false,immigration_petition_yn=false, previousvisa_issuedate=false,previousvisa_number=false,previousvisa_same_yn=false,tenprinted_yn=false,previousvisa_lost_stolen_yn=false,previousvisa_revoked_yn=false;
 
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
 
     if(interaction == "ustravel_yn"){
       ustravel_yn = checkYesNo("PREV_US_TRAVEL_IND", value);
@@ -472,7 +467,7 @@ function fillOutPagePreviousUSTravelOld(personalData) {
       previous_ustrip_date = setDate("PREV_US_VISIT", value);
     }
     if(interaction == "previous_ustrip_duration"){
-      var trip_date = personalData[i].value.split(" ");
+      var trip_date = value.split(" ");
       fillNumberInput("PREV_US_VISIT_LOS", value);
       setSelectValue("PREV_US_VISIT_LOS_CD", "D");
       previous_ustrip_duration = true;
@@ -577,8 +572,8 @@ function fillOutPageUSContactOld(personalData) {
 function fillOutPageSpouseOld(personalData) {
   var spouse_first= false,spouse_last=false,spouse_dob=false,spouse_birth_city=false,spouse_nationality=false,spouse_birth_country=false,spouse_living_yn=false;
 
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "spouse_first"){
       spouse_first = fillTextInput("SpouseGivenName", value);
     }
@@ -635,8 +630,8 @@ function fillOutPageSpouseOld(personalData) {
 function fillOutPageRelativesOld(personalData) {
   var father_first_name= false,father_last_name=false,fatherDOB=false,father_location=false,mother_first_name=false,mother_last_name=false,motherDOB=false,mother_location=false,US_IMrelatives_yn=false,immediate_relative_first_name=false,immediate_relative_last_name=false,immediate_relative_type=false,immediate_relative_status=false,US_relatives_yn=false;
 
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "father_last_name"){
       father_last_name = fillTextInput("FATHER_SURNAME", value);
     }
@@ -738,8 +733,8 @@ function fillOutPageRelativesOld(personalData) {
 function fillOutPagePrevSpouseOld(personalData) {
   var spouse_first= false,spouse_last=false,spouse_dob=false,spouse_birth_city=false,spouse_nationality=false,spouse_birth_country=false,ex_start_date=false, ex_end_date=false,mariage_end_why=false,mariage_end_country=false;
   $('input[name$="NumberOfPrevSpouses"]').val("1");
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "spouse_first"){
       spouse_first = fillTextInput("GIVEN_NAME", value);
     }
@@ -781,8 +776,8 @@ function fillOutPageDeceasedSpouseOld(personalData) {
 
 function fillOutPageWorkEducation1Old(personalData) {
   var occupation= false,employer_school_name=false,employer_number=false,employer_address=false,current_monthly_income=false,employer_duties=false,occupation_other_explain=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction.trim(), value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "is_student" && value == "Yes") {
       occupation = setSelectValue("PresentOccupation", "STUDENT");
     }
@@ -799,7 +794,7 @@ function fillOutPageWorkEducation1Old(personalData) {
       employer_number = fillNumberInput("WORK_EDUC_TEL", value);
     }
     if(interaction == "employer_address" || interaction == "school_address"){
-      var address = JSON.parse(personalData[i].value.trim());
+      var address = JSON.parse(value.trim());
       if(address['street'].trim() && address['street'].trim()!=""){
         fillTextInput("EmpSchAddr1", address['street'].trim());
       } else {
@@ -868,8 +863,8 @@ function fillOutPageWorkEducation1Old(personalData) {
 function fillOutPageWorkEducation2Old(personalData) {
   var previously_employed= false,previous_education=false,previous_school_name=false,previous_school_address=false,previous_course_study=false,school_start=false,school_end=false, past_employer_name=false,supervisors_name=false,past_employer_address=false,past_job_title=false,start_date=false,end_date=false,past_duties=false;
 
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
 
     if(interaction == "previously_employed"){
       previously_employed = checkYesNo("PreviouslyEmployed", value);
@@ -974,8 +969,8 @@ function fillOutPageWorkEducation2Old(personalData) {
 
 function fillOutPageWorkEducation3Old(personalData) {
   var clan_yn= false,languages=false,travel_yn=false,previous_countries_list=false,charitable_yn=false,charitable_name=false,firearms_yn=false,military_yn=false,guerilla_yn=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "clan_yn"){
       clan_yn = checkYesNo("CLAN_TRIBE_IND", value);
     }
@@ -1032,8 +1027,8 @@ function fillOutPageWorkEducation3Old(personalData) {
 function fillOutPageSecurityandBackground1Old(personalData) {
   var disease_yn= false,mental_yn=false,drug_yn=false,charitable_yn=false,firearms_yn=false,military_yn=false,guerilla_yn=false;
 
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
 
     if(interaction == "disease_yn"){
       disease_yn = checkYesNo("Disease", value);
@@ -1061,8 +1056,8 @@ function fillOutPageSecurityandBackground1Old(personalData) {
 
 function fillOutPageSecurityandBackground2Old(personalData) {
   var convicted_yn= false,substances_yn=false,prostitution_yn=false,laundering_yn=false,trafficking_yn=false,ustrafficking_yn=false,traffickingrelation_yn=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "convicted_yn"){
       convicted_yn = checkYesNo("Arrested", value);
     }
@@ -1113,8 +1108,8 @@ function fillOutPageSecurityandBackground2Old(personalData) {
 
 function fillOutPageSecurityandBackground3Old(personalData) {
   var espionage_yn= false,terrorism_yn=false,terrorsupport_yn=false,terrororg_yn=false,genocide_yn=false,torture_yn=false,killing_yn=false,childsoldiers_yn=false,religion_yn=false,abortion_yn=false,organ_yn=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "espionage_yn"){
       espionage_yn = checkYesNo("IllegalActivity", value);
     }
@@ -1189,8 +1184,8 @@ function fillOutPageSecurityandBackground3Old(personalData) {
 
 function fillOutPageSecurityandBackground4Old(personalData) {
   var removalhearing_yn= false,immigration_fraud_yn=false,failtoattend_yn=false,visaviolation_yn=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
 
     if(interaction == "removalhearing_yn"){
       removalhearing_yn = checkYesNo("RemovalHearing", value);
@@ -1224,8 +1219,8 @@ function fillOutPageSecurityandBackground4Old(personalData) {
 
 function fillOutPageSecurityandBackground5Old(personalData) {
   var custody_yn= false,vote_yn=false,taxevasion_yn=false,reimbursing_yn=false;
-  for(var i in personalData){
-    var interaction = personalData[i].interaction, value = personalData[i].value;
+  for(var interaction in personalData){
+    var value = personalData[interaction];
     if(interaction == "custody_yn"){
       custody_yn = checkYesNo("ChildCustody", value);
     }

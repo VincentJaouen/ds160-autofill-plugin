@@ -1,4 +1,4 @@
-const USER_DATA = "userData";
+const USER_DATA = "data";
 
 function startForm(data, callback) {
   storeObject(USER_DATA, data, callback);
@@ -10,7 +10,7 @@ function stopForm(callback) {
 
 function ifStarted(startedCallback, stoppedCallback) {
   getStoredObjects(USER_DATA, function(data) {
-    if (data && data.length > 0) {
+    if (data) {
       // Call first callback if data is stored
       startedCallback(data);
     } else if (stoppedCallback) {
@@ -21,6 +21,7 @@ function ifStarted(startedCallback, stoppedCallback) {
 }
 
 function storeObject(key, objectToStore, callback) {
+  console.log('store', objectToStore);
   var stored = {};
   stored[key] = objectToStore;
   chrome.storage.local.set(stored, function() {
