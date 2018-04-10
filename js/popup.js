@@ -38,7 +38,7 @@ function showUserName(data) {
 }
 
 function isOnDS160Form(tab) {
-	return (tab.url.indexOf("ceac.state.gov/GenNIV") != -1 || tab.url.indexOf("ais.usvisa-info.com") != -1);
+	return (tab.url.indexOf("ceac.state.gov") != -1 || tab.url.indexOf("ais.usvisa-info.com") != -1);
 }
 
 function showStopButton() {

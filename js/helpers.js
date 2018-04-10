@@ -3,7 +3,9 @@ function clickNext() {
 }
 
 function clickContinue() {
-  $('input[name$="btnContinue"]').click();
+  var continueButton = $('#ctl00_SiteContentPlaceHolder_btnContinue');
+  continueButton.focus();
+  continueButton.click();
 }
 
 function checkBox(boxName) {

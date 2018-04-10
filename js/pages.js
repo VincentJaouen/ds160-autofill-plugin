@@ -1,7 +1,11 @@
+var inputMapper = {
+  "APP_GIVEN_NAME": { data: "first_name", helper: "fillTextInput" }
+};
+
 function fillPageFromMapper(mapper, data) {
   console.log(data);
   for (var interaction in mapper) {
-    var input = mapper[interaction], value = data[interaction], missing = true;
+    var value = data[interaction], input = mapper[interaction];
     // If data is given and not empty, fill out input in form
     if (value && value != '') {
       // find helper function and call it with the value
@@ -25,11 +29,29 @@ function fillPageFromMapper(mapper, data) {
 
 function fillOutPageSecureQuestionOld(personalData) {
   fillTextInput("txtAnswer", 'PASSPAL');
-  // clickContinue();
+  clickContinue();
 }
 
 function fillOutPagePersonal1(personalData) {
-  console.log('fillOutPagePersonal1');
+  $('#aspnetForm').find(":input").each(function() {
+    var elementId = $(this).attr('id');
+    for(var inputName in inputMapper) {
+      if(elementId && elementId.indexOf(inputName) != -1) {
+        var input = inputMapper[inputName];
+        // Get helper function from name
+        var helper = window[input['helper']];
+        // If helper exists, call it with data
+        if (helper) {
+          console.log($(this).attr('name'), inputName);
+          helper($(this).attr('name'), personalData[input['data']]);
+        }
+      }
+    }
+    //if($(this).attr("id").indexOf()
+  });
+
+  return;
+
   var mapper = {
     first_name: { selector: "APP_GIVEN_NAME", helper: "fillTextInput" },
     last_name: { selector: "APP_SURNAME", helper: "fillTextInput" },
@@ -45,7 +67,7 @@ function fillOutPagePersonal1(personalData) {
 
   fillPageFromMapper(mapper, personalData);
   // Fill full name
-  fillTextInput("APP_FULL_NAME_NATIVE", first_name + ' ' + last_name);
+  fillTextInput("APP_FULL_NAME_NATIVE", personalData['first_name'] + ' ' + personalData['last_name']);
 
   // clickNext();
 }

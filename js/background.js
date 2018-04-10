@@ -13,7 +13,6 @@ function fetchApplicationData(applicationId, tabId, sendResponse) {
 		dataType: 'json',
 		url: "https://passpal.co/applications/" + applicationId + '.json',
 		success: function(application) {
-      console.log('application', application);
 			fetchGroupData(application.user_id, application.data, tabId, sendResponse);
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -28,7 +27,6 @@ function fetchGroupData(userId, appData, tabId, sendResponse) {
     dataType: 'json',
     url: "https://passpal.co/users/data?user_id=" + userId,
     success: function(userData) {
-      console.log('userData', userData);
       var data = Object.assign(appData, userData);
 			startForm(data, function() {
 			  chrome.tabs.sendMessage(tabId,
