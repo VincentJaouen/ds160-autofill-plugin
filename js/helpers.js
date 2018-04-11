@@ -1,5 +1,7 @@
 function clickNext() {
-  // $('input[name$="UpdateButton3"]').click();
+  var nextButton = $('#ctl00_SiteContentPlaceHolder_UpdateButton3');
+  nextButton.focus();
+  nextButton.click();
 }
 
 function clickContinue() {

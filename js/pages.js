@@ -1,5 +1,6 @@
 var inputMapper = {
-  "APP_GIVEN_NAME": { data: "first_name", helper: "fillTextInput" }
+  "APP_GIVEN_NAME": { data: "first_name", helper: "fillTextInput" },
+  "APP_GENDER": { data: "gender", helper: "checkGender" }
 };
 
 function fillPageFromMapper(mapper, data) {
@@ -35,20 +36,34 @@ function fillOutPageSecureQuestionOld(personalData) {
 function fillOutPagePersonal1(personalData) {
   $('#aspnetForm').find(":input").each(function() {
     var elementId = $(this).attr('id');
-    for(var inputName in inputMapper) {
-      if(elementId && elementId.indexOf(inputName) != -1) {
-        var input = inputMapper[inputName];
-        // Get helper function from name
-        var helper = window[input['helper']];
-        // If helper exists, call it with data
-        if (helper) {
-          console.log($(this).attr('name'), inputName);
-          helper($(this).attr('name'), personalData[input['data']]);
-        }
+    if (!elementId) return false;
+
+    // Get input key in mapper from element's id attribute.
+    // Since the element's ids are very long, we just get the input
+    // if the ID contains the key
+    var inputKey = Object.keys(inputMapper).find(function(name) {
+      return elementId.indexOf(name) != -1;
+    });
+
+    // If input key is found, retrieve input's attributes from mapper
+    if (inputKey) {
+      var input = inputMapper[inputKey];
+      console.log(input, personalData[input['data']]);
+      // Get the helper
+      var helper = window[input['helper']];
+      if (helper) {
+        helper($(this).attr('name'), personalData[input['data']]);
       }
     }
-    //if($(this).attr("id").indexOf()
   });
+
+  // Click if there are no errors
+  var errorElement = $('#ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary');
+  if(errorElement.children().length <= 0) {
+    clickNext();
+  }
+
+  // setTimeout(function() { console.log('click next'); clickNext(); }, 2000);
 
   return;
 
