@@ -19,6 +19,7 @@ function checkBox(boxName) {
 }
 
 function checkYesNo(inputName, value) {
+  console.log('yesno', inputName, value);
   if (value == "No") {
     checkBox(inputName + "_1");
   } else {

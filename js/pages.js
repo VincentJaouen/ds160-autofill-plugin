@@ -1,61 +1,87 @@
-var inputMapper = {
-  "APP_GIVEN_NAME": { data: "first_name", helper: "fillTextInput" },
-  "APP_GENDER": { data: "gender", helper: "checkGender" }
-};
-
-function fillPageFromMapper(mapper, data) {
-  console.log(data);
-  for (var interaction in mapper) {
-    var value = data[interaction], input = mapper[interaction];
-    // If data is given and not empty, fill out input in form
-    if (value && value != '') {
-      // find helper function and call it with the value
-      var fn = window[input.helper];
-      if(typeof fn === 'function') {
-        // If helper return true, filling was successful
-        if (fn(input.selector, value)) {
-          missing = false;
-        }
-      }
-      else {
-        console.log('HELPER ' + input.helper + ' NOT FOUND !!!!');
-      }
-    }
-    // If value is missing, set default value
-    // if (missing) {
-    //   fn(input.selector, null);
-    // }
-  }
-}
+var inputMapper = [
+  { data: "first_name", helper: "fillTextInput", selector: "APP_GIVEN_NAME" },
+  { data: "gender", helper: "checkGender", selector: "APP_GENDER" },
+  { data: function(data) { return data['first_name'] + ' ' + data['last_name']; }, helper: "fillTextInput", selector: "APP_FULL_NAME_NATIVE" },
+  { data: "alias_yn", helper: "checkYesNo", selector: "OtherNames" },
+  { data: "alias", multiple: true, selector: "DListAlias", interactions: [
+    { data: "given_names", helper: "fillTextInput", selector: "SURNAMES" },
+    { data: "surnames", helper: "fillTextInput", selector: "GIVEN_NAMES" }
+  ] }
+];
 
 function fillOutPageSecureQuestionOld(personalData) {
   fillTextInput("txtAnswer", 'PASSPAL');
   clickContinue();
 }
 
-function fillOutPagePersonal1(personalData) {
-  $('#aspnetForm').find(":input").each(function() {
-    var elementId = $(this).attr('id');
-    if (!elementId) return false;
+function getData(allData, dataAttr) {
+  var data;
 
-    // Get input key in mapper from element's id attribute.
-    // Since the element's ids are very long, we just get the input
-    // if the ID contains the key
-    var inputKey = Object.keys(inputMapper).find(function(name) {
-      return elementId.indexOf(name) != -1;
-    });
+  if(typeof dataAttr == 'function') {
+    data = dataAttr(allData);
+  }
+  else {
+    data = allData[dataAttr];
+  }
 
-    // If input key is found, retrieve input's attributes from mapper
-    if (inputKey) {
-      var input = inputMapper[inputKey];
-      console.log(input, personalData[input['data']]);
-      // Get the helper
-      var helper = window[input['helper']];
-      if (helper) {
-        helper($(this).attr('name'), personalData[input['data']]);
+  return data;
+}
+
+function fillInput(helperName, data, selector) {
+  var helperFunc = window[helperName];
+  if(typeof helperFunc == 'function') {
+    helperFunc(selector, data);
+  }
+}
+
+function timeFill(index, allData) {
+  var mapRow = inputMapper[index];
+  if(!mapRow) {
+    return;
+  }
+
+  setTimeout(function() {
+    console.log(mapRow);
+    var data;
+    if (mapRow.multiple) {
+      data = allData[mapRow.data];
+      var table = $('table[id*="'+mapRow.selector+'"]'),
+        rowsPresent = table.find('tr'),
+        diffRows = data.length - rowsPresent.length,
+        addButton = rowsPresent.first().find('.addone a');
+
+      // If not enough rows, add as many as needed
+      while(diffRows > 0) {
+        window.location = addButton.attr('href');
+        console.log('add row', mapRow.selector);
+        --diffRows;
       }
+      // If too many rows, remove as many as needed
+      while(diffRows < 0) {
+        removeButton = rowsPresent.first().find('.removeone a');
+        console.log('remove row', mapRow.selector);
+        window.location = removeButton.attr('href');
+        ++diffRows;
+      }
+
+      for(var i = 0 ; i < data.length ; ++i) {
+        console.log(data[i]);
+      }
+     
     }
-  });
+    else {
+      data = getData(allData, mapRow.data);
+      fillInput(mapRow.helper, data, mapRow.selector);
+    }
+    
+    timeFill(index + 1, allData);
+  }, 500);
+}
+
+function fillOutPagePersonal1(data) {
+  timeFill(0, data);
+
+  return;
 
   // Click if there are no errors
   var errorElement = $('#ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary');
