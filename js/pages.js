@@ -1,50 +1,63 @@
-var inputMapper = [
-  { data: "first_name", helper: "fillTextInput", selector: "APP_GIVEN_NAME" },
-  { data: "gender", helper: "checkGender", selector: "APP_GENDER" },
-  { data: function(data) { return data['first_name'] + ' ' + data['last_name']; }, helper: "fillTextInput", selector: "APP_FULL_NAME_NATIVE" },
-  { data: "alias_yn", helper: "checkYesNo", selector: "OtherNames" },
-  { data: "alias", multiple: true, selector: "DListAlias", interactions: [
-    { data: "given_names", helper: "fillTextInput", selector: "SURNAMES" },
-    { data: "surnames", helper: "fillTextInput", selector: "GIVEN_NAMES" }
-  ] }
-];
+var inputMapper = {
+  personal1: [
+    { key: "last_name", helper: "fillTextInput", selector: "APP_SURNAME" },
+    { key: "first_name", helper: "fillTextInput", selector: "APP_GIVEN_NAME" },
+    { key: "gender", helper: "checkGender", selector: "APP_GENDER" },
+    { key: "full_name", data: function(data) { return data['first_name'] + ' ' + data['last_name']; }, helper: "fillTextInput", selector: "APP_FULL_NAME_NATIVE" },
+    { key: "alias_yn", helper: "checkYesNo", selector: "OtherNames" },
+    { key: "alias", selector: "DListAlias", timer: 1000, helper: [
+      { key: "given_names", helper: "fillTextInput", selector: "SURNAME" },
+      { key: "surnames", helper: "fillTextInput", selector: "GIVEN_NAME" }
+    ] },
+    { key: "telecode", data: function(data) { return "No"; }, selector: "TelecodeQuestion", helper: "checkYesNo" },
+    { key: "marital_status", selector: "APP_MARITAL_STATUS", helper: "findInSelect" },
+  ],
+  findByKey: function(key, mapper = null) {
+    if (!mapper) {
+      mapper = currentMapper;
+    }
+
+    return mapper.find(function(mapRow) { return mapRow.key == key; });
+  },
+  currentDomain: "personal1",
+  currentMapper: function() { return this[this.currentDomain]; }
+};
 
 function fillOutPageSecureQuestionOld(personalData) {
-  fillTextInput("txtAnswer", 'PASSPAL');
+  $("#ctl00_SiteContentPlaceHolder_txtAnswer").val('PASSPAL');
   clickContinue();
 }
 
-function getData(allData, dataAttr) {
-  var data;
-
-  if(typeof dataAttr == 'function') {
-    data = dataAttr(allData);
-  }
-  else {
-    data = allData[dataAttr];
+function getData(allData, mapRow) {
+  // If data function is given, get data from it
+  if(mapRow.data && typeof mapRow.data == 'function') {
+    return mapRow.data(allData);
   }
 
-  return data;
+  // Otherwise, just get data from key
+  return allData[mapRow.key];
 }
 
-function fillInput(helperName, data, selector) {
+function fillInput(helperName, data, selector, container, index) {
   var helperFunc = window[helperName];
   if(typeof helperFunc == 'function') {
-    helperFunc(selector, data);
+    helperFunc(selector, data, container, index);
   }
 }
 
-function timeFill(index, allData) {
-  var mapRow = inputMapper[index];
+function timeFill(index, mapper, allData, container, index) {
+  console.log('timeFill', index, mapper);
+  var mapRow = mapper[index];
   if(!mapRow) {
     return;
   }
 
   setTimeout(function() {
-    console.log(mapRow);
+    console.log(mapRow, allData);
     var data;
-    if (mapRow.multiple) {
-      data = allData[mapRow.data];
+    // If helper is array then row is multiple
+    if (Array.isArray(mapRow.helper)) {
+      data = getData(allData, mapRow);
       var table = $('table[id*="'+mapRow.selector+'"]'),
         rowsPresent = table.find('tr'),
         diffRows = data.length - rowsPresent.length,
@@ -65,52 +78,24 @@ function timeFill(index, allData) {
       }
 
       for(var i = 0 ; i < data.length ; ++i) {
-        console.log(data[i]);
+        var dataRow = data[i];
+        timeFill(0, mapRow.helper, dataRow, mapRow.selector, i);
       }
      
     }
     else {
-      data = getData(allData, mapRow.data);
+      data = getData(allData, mapRow);
       fillInput(mapRow.helper, data, mapRow.selector);
     }
     
-    timeFill(index + 1, allData);
-  }, 500);
+    timeFill(index + 1, mapper, allData);
+  }, mapRow.timer ? mapRow.timer : 100);
 }
 
 function fillOutPagePersonal1(data) {
-  timeFill(0, data);
+  timeFill(0, inputMapper.currentMapper(), data);
 
   return;
-
-  // Click if there are no errors
-  var errorElement = $('#ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary');
-  if(errorElement.children().length <= 0) {
-    clickNext();
-  }
-
-  // setTimeout(function() { console.log('click next'); clickNext(); }, 2000);
-
-  return;
-
-  var mapper = {
-    first_name: { selector: "APP_GIVEN_NAME", helper: "fillTextInput" },
-    last_name: { selector: "APP_SURNAME", helper: "fillTextInput" },
-    gender: { selector: "APP_GENDER", helper: "checkGender" },
-    marital_status: { selector: "APP_MARITAL_STATUS", helper: "setSelectValue" },
-    city_of_birth: { selector: "APP_POB_CITY", helper: "fillTextInput" },
-    state_of_birth: { selector: "APP_POB_ST_PROVINCE", helper: "fillTextInput" },
-    country_of_birth: { selector: "APP_POB_CNTRY", helper: "setSelectValue" },
-    DOB: { selector: "DOB", helper: "setDate" },
-    alias_yn: { selector: "OtherNames", helper: "checkYesNo" },
-    telecode_yn: { selector: "TelecodeQuestion", helper: "checkYesNo" },
-  };
-
-  fillPageFromMapper(mapper, personalData);
-  // Fill full name
-  fillTextInput("APP_FULL_NAME_NATIVE", personalData['first_name'] + ' ' + personalData['last_name']);
-
-  // clickNext();
 }
 
 function fillOutPagePersonal2(personalData) {

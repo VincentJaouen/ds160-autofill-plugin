@@ -1,3 +1,10 @@
+var valueToBoxSuffix = {
+  No: "_1",
+  Yes: "_0",
+  male: "_0",
+  female: "_1"
+};
+
 function clickNext() {
   var nextButton = $('#ctl00_SiteContentPlaceHolder_UpdateButton3');
   nextButton.focus();
@@ -10,34 +17,33 @@ function clickContinue() {
   continueButton.click();
 }
 
-function checkBox(boxName) {
-  if (!$('input[id$="' + boxName + '"]').is(':checked')) {
-    $('label[for$="' + boxName + '"]').click();
+function getElementId(inputName, type, container, index) {
+  var id = "ctl00_SiteContentPlaceHolder_FormView1_";
+  if(container) {
+    id += "_" + container;
+  }
+  if(index) {
+    id += "_ctl0" + index;
+  }
+  return id + "_" + type + inputName;
+}
+
+function checkBox(boxName, container, index, radio=false) {
+  var type = radio ? "rbl" : "cbex";
+  var elementId = getElementId(boxName, type, container, index);
+  if (!$('#' + elementId).is(':checked')) {
+    $('label[for="' + elementId + '"]').click();
   }
 
   return true;
 }
 
-function checkYesNo(inputName, value) {
-  console.log('yesno', inputName, value);
-  if (value == "No") {
-    checkBox(inputName + "_1");
-  } else {
-    checkBox(inputName + "_0");
-  }
-  return true;
+function checkYesNo(inputName, value, container, index) {
+  return checkBox(inputName + valueToBoxSuffix[value], container, index);
 }
 
-function checkGender(inputName, value) {
-  if (value == "male") {
-    checkBox(inputName + "_0");
-  } else {
-    checkBox(inputName + "_1");
-  }
-  return true;
-}
-
-function fillTextInput(inputName, rawValue, latinize=true, alphanumerize=true) {
+function fillTextInput(inputName, rawValue, container, index, latinize=true, alphanumerize=true) {
+  console.log('fillTextInput', inputName, rawValue);
   if (!rawValue) {
     console.log(inputName + " empty");
     return false;
@@ -50,13 +56,14 @@ function fillTextInput(inputName, rawValue, latinize=true, alphanumerize=true) {
   if (alphanumerize) {
     value = value.alphanumerize();
   }
+  var element = $('#' + getElementId(inputName, "tbx", container, index));
   // Check if input has a character limit
-  maxLength = $('input[name$="' + inputName + '"]').attr('maxlength');
+  var maxLength = element.attr('maxlength');
   if (maxLength) {
     value = value.substring(0, parseInt(maxLength));
   }
 
-  $('input[name$="' + inputName + '"]').val(value);
+  element.val(value);
   return true;
 }
 
