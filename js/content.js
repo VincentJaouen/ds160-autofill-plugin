@@ -58,29 +58,35 @@ function fillEmbassy(info) {
   return true;
 }
 
-function fillDS(info) {
+function fillDS(data) {
   // If page is index, set location as Argentina
   var dropdown = document.getElementById('ctl00_SiteContentPlaceHolder_ucLocation_ddlLocation');
   if(dropdown && dropdown.value == '') {
     dropdown.value = "BNS";
     dropdown.dispatchEvent(new Event("change"));
   }
+  
+  var securityQuestionInput = document.getElementById('ctl00_SiteContentPlaceHolder_txtAnswer');
+  console.log('elem', securityQuestionInput);
+
+  if (securityQuestionInput) {
+    securituQuestionInput.val('PASSPAL');
+    clickContinue();
+  }
 
   // Get page parameter in order to determine which function to call
   var match = location.href.match(/\?node\=([A-Za-z0-9]*)$/gm);
 
   if (match && match.length > 0 && match[0]) {
-    var parameter = match[0].split('=')[1];
-    var callbackName = 'fillOutPage' + parameter;
-
-    if(!window[callbackName]) {
-      callbackName += 'Old';
+    var parameter = match[0].split('=')[1],
+      mapper = InputMapper[parameter];
+    if(mapper) {
+      var iterator = new MapperIterator(inputMapper[parameter]);
+      fillFromMapperIterator(iterator, data);
+      clickNext();
     }
-
-    // If function is found for this page, call it
-    var fn = window[callbackName];
-    if(typeof fn === 'function') {
-        fn(info);
+    else {
+      console.log('No mapper');
     }
   }
 }

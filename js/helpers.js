@@ -1,4 +1,4 @@
-var valueToBoxSuffix = {
+const valueToBoxSuffix = {
   No: "_1",
   Yes: "_0",
   male: "_0",
@@ -17,20 +17,26 @@ function clickContinue() {
   continueButton.click();
 }
 
-function getElementId(inputName, type, container, index) {
-  var id = "ctl00_SiteContentPlaceHolder_FormView1_";
-  if(container) {
-    id += "_" + container;
+function getElementId(inputName, type, opts={}) {
+  var id = "ctl00_SiteContentPlaceHolder_FormView1";
+  if(opts.container) {
+    id += "_" + opts.container;
   }
-  if(index) {
-    id += "_ctl0" + index;
+  if(opts.controller || opts.controller == 0) {
+    id += "_ctl0" + opts.controller;
   }
   return id + "_" + type + inputName;
 }
 
-function checkBox(boxName, container, index, radio=false) {
-  var type = radio ? "rbl" : "cbex";
-  var elementId = getElementId(boxName, type, container, index);
+function getElement(elementId) {
+  return $('#' + elementId);
+}
+
+function checkBox(boxName, opts={}) {
+  var type = opts.radio ? "rbl" : "cbex";
+  var elementId = getElementId(boxName, type, opts);
+  console.log('check', elementId, opts);
+  console.log(elementId);
   if (!$('#' + elementId).is(':checked')) {
     $('label[for="' + elementId + '"]').click();
   }
@@ -38,25 +44,31 @@ function checkBox(boxName, container, index, radio=false) {
   return true;
 }
 
-function checkYesNo(inputName, value, container, index) {
-  return checkBox(inputName + valueToBoxSuffix[value], container, index);
+function checkYesNo(inputName, value, opts) {
+  opts['radio'] = true;
+  return checkBox(inputName + valueToBoxSuffix[value], opts);
 }
 
-function fillTextInput(inputName, rawValue, container, index, latinize=true, alphanumerize=true) {
-  console.log('fillTextInput', inputName, rawValue);
-  if (!rawValue) {
+function fillTextInput(inputName, rawValue, opts) {
+  opts = Object.assign({ latinize: true, alphanumerize: true }, opts);
+  if (!rawValue || rawValue == "NA") {
+    // If value is empty or says "NA",
+    // try to check does not apply box
+    console.log(inputName + "_NA");
+    checkBox(inputName + "_NA", opts);
     console.log(inputName + " empty");
     return false;
   }
 
   var value = rawValue.trim().replace(/\s\s+/g, ' '), maxLength;
-  if (latinize) {
+  if (opts.latinize) {
     value = value.latinize();
   }
-  if (alphanumerize) {
+  if (opts.alphanumerize) {
     value = value.alphanumerize();
   }
-  var element = $('#' + getElementId(inputName, "tbx", container, index));
+  var elementId = getElementId(inputName, "tbx", opts),
+    element = getElement(elementId);
   // Check if input has a character limit
   var maxLength = element.attr('maxlength');
   if (maxLength) {
@@ -67,13 +79,15 @@ function fillTextInput(inputName, rawValue, container, index, latinize=true, alp
   return true;
 }
 
-function fillNumberInput(inputName, rawValue) {
+function fillNumberInput(inputName, rawValue, opts) {
   if (!rawValue) {
     console.log(inputName + " empty");
     return false;
   }
 
-  var value = rawValue.trim().numerize(), maxLength;
+  var value = rawValue.trim().numerize(),
+    element = getElement(getElementId(inputName, opts));
+    maxLength;
   // Check if input has a character limit
   maxLength = $('input[name$="' + inputName + '"]').attr('maxlength');
   if (maxLength) {
