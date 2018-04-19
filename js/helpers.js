@@ -5,19 +5,37 @@ const valueToBoxSuffix = {
   female: "_1"
 };
 
-function clickNext() {
-  var nextButton = $('#ctl00_SiteContentPlaceHolder_UpdateButton3');
-  nextButton.focus();
-  nextButton.click();
+const typeToCodeMap = {
+  text: "tbx",
+  radio: "rbl",
+  dropdown: "ddl",
+  checkbox: "cbex",
+  date: "composite",
+  default: "tbx"
+};
+
+const typeToHelper = {
+  text: fillOutTextInput,
+  number: fillOutTextInput,
+  radio: checkYesNo,
+  dropdown: findInSelect,
+  checkbox: checkBox,
+  date: setDate,
+  default: fillOutTextInput
+};
+
+const typeToDefaultOptions = {
+  text: { latinize: true, alphanumerize: true },
+  number: { numerize: true },
+  radio: { radio: true },
+  default: {}
+};
+
+function mapKeyToValue(key, mapper) {
+  return mapper[key] || mapper['default'];
 }
 
-function clickContinue() {
-  var continueButton = $('#ctl00_SiteContentPlaceHolder_btnContinue');
-  continueButton.focus();
-  continueButton.click();
-}
-
-function getElementId(inputName, type, opts={}) {
+function getElementId(inputName, typeCode, opts={}) {
   var id = "ctl00_SiteContentPlaceHolder_FormView1";
   if(opts.container) {
     id += "_" + opts.container;
@@ -25,77 +43,104 @@ function getElementId(inputName, type, opts={}) {
   if(opts.controller || opts.controller == 0) {
     id += "_ctl0" + opts.controller;
   }
-  return id + "_" + type + inputName;
+  return id + "_" + typeCode + inputName;
 }
 
 function getElement(elementId) {
   return $('#' + elementId);
 }
 
-function checkBox(boxName, opts={}) {
-  var type = opts.radio ? "rbl" : "cbex";
-  var elementId = getElementId(boxName, type, opts);
-  console.log('check', elementId, opts);
-  console.log(elementId);
-  if (!$('#' + elementId).is(':checked')) {
-    $('label[for="' + elementId + '"]').click();
+function sanitizeValue(value, opts) {
+  console.log('sanitize', value);
+  if(!value) {
+    return '';
   }
 
-  return true;
+  value = value.trim().replace(/\s\s+/g, ' ');
+  if(opts.latinize) {
+    value = value.latinize();
+  }
+  if(opts.alphanumerize) {
+    value = value.alphanumerize();
+  }
+  if(opts.numerize) {
+    value = value.numerize();
+  }
+
+  return value;
 }
 
-function checkYesNo(inputName, value, opts) {
-  opts['radio'] = true;
-  return checkBox(inputName + valueToBoxSuffix[value], opts);
+function fillOutInput(name, value, type = 'text', opts={}) {
+  // Needs to copy opts to not modify for the other rows
+  var typeCode = mapKeyToValue(type, typeToCodeMap),
+    helper = mapKeyToValue(type, typeToHelper);
+
+  if(typeCode == "composite") {
+    helper(name, value, opts);
+    return;
+  }
+
+  var elementId = getElementId(name, typeCode, opts),
+    opts = {
+      ...mapKeyToValue(type, typeToDefaultOptions),
+      ...opts
+    },
+    value = sanitizeValue(value, opts);
+
+  helper(elementId, value);
 }
 
-function fillTextInput(inputName, rawValue, opts) {
-  opts = Object.assign({ latinize: true, alphanumerize: true }, opts);
-  if (!rawValue || rawValue == "NA") {
+function errorsPresent() {
+  var errorDiv = getElement('ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary');
+  // If error div is not empty, don't click next
+  if(errorDiv.html().trim() != '') {
+    return true;
+  }
+
+  return false;
+}
+
+function clickNext() {
+  var nextButton = getElement('ctl00_SiteContentPlaceHolder_UpdateButton3');
+  setTimeout(function() {
+    nextButton.focus();
+    //nextButton.click();
+  }, 5000);
+}
+
+function clickContinue() {
+  var continueButton = getElement('ctl00_SiteContentPlaceHolder_btnContinue');
+  continueButton.focus();
+  continueButton.click();
+}
+
+function checkBox(elementId) {
+  if (!getElement(elementId).is(':checked')) {
+    $('label[for="' + elementId + '"]').click();
+  }
+}
+
+function checkYesNo(elementId, value) {
+  return checkBox(elementId + valueToBoxSuffix[value]);
+}
+
+function fillOutTextInput(elementId, value) {
+  if (!value || value == "NA") {
     // If value is empty or says "NA",
     // try to check does not apply box
-    console.log(inputName + "_NA");
-    checkBox(inputName + "_NA", opts);
-    console.log(inputName + " empty");
+    checkBox(elementId + "_NA");
+    console.log(elementId + " empty");
     return false;
   }
 
-  var value = rawValue.trim().replace(/\s\s+/g, ' '), maxLength;
-  if (opts.latinize) {
-    value = value.latinize();
-  }
-  if (opts.alphanumerize) {
-    value = value.alphanumerize();
-  }
-  var elementId = getElementId(inputName, "tbx", opts),
-    element = getElement(elementId);
+  var element = getElement(elementId),
   // Check if input has a character limit
-  var maxLength = element.attr('maxlength');
+    maxLength = parseInt(element.attr('maxlength'));
   if (maxLength) {
-    value = value.substring(0, parseInt(maxLength));
+    value = value.substring(0, maxLength);
   }
 
   element.val(value);
-  return true;
-}
-
-function fillNumberInput(inputName, rawValue, opts) {
-  if (!rawValue) {
-    console.log(inputName + " empty");
-    return false;
-  }
-
-  var value = rawValue.trim().numerize(),
-    element = getElement(getElementId(inputName, opts));
-    maxLength;
-  // Check if input has a character limit
-  maxLength = $('input[name$="' + inputName + '"]').attr('maxlength');
-  if (maxLength) {
-    value = value.substring(0, parseInt(maxLength));
-  }
-
-  $('input[name$="' + inputName + '"]').val(value.trim().numerize().substring(0, 20));
-  return true;
 }
 
 function fillTextarea(selector, rawValue) {
@@ -105,7 +150,8 @@ function fillTextarea(selector, rawValue) {
 }
 
 function findInSelect(selectId, value) {
-  var selector = 'select[id$="' + selectId + '"]', found = false;
+  var selector = getElement(selectId),
+    found = false;
   // Search for value in options
   $(selector).find('option').each(function() {
     var optionLabel = $(this).text();
@@ -122,38 +168,38 @@ function findInSelect(selectId, value) {
   return found;
 }
 
+function setDate(elementName, value, opts) {
+  var dates = value.split("/"),
+    dropdownId = getElementId(elementName, mapKeyToValue("dropdown", typeToCodeMap)),
+    textInputId = getElementId(elementName, mapKeyToValue("text", typeToCodeMap));
+  console.log('setDate', dropdownId, textInputId);
+  setSelectValue(dropdownId + "Day", dates[0], true);
+  setSelectValue(dropdownId + "_DTEDay", dates[0], true);
+  setSelectValue(dropdownId + "Month", parseInt(dates[1]), true);
+  setSelectValue(dropdownId + "_DTEMonth", parseInt(dates[1]), true);
+  fillOutTextInput(textInputId + "Year", dates[2]);
+  fillOutTextInput(textInputId + "_DTEYear", dates[2]);
+}
+
 function setSelectValue(selectId, value, fromIndex = false) {
-  var selector = 'select[id$="' + selectId + '"]', found = false;
+  var element = getElement(selectId);
   // If fromIndex is set, search by value of index
-  $(selector).find('option').each(function(index, optionValue) {
+  element.find('option').each(function(index, optionValue) {
     if($(this).val() == value ||
         $(this).text() == value ||
         typeof value === 'string' && $(this).text() == value.toUpperCase().trim() ||
         fromIndex && index == parseInt(value)
       ) {
 
-      $(selector).val($(this).val());
-      $(selector).change();
-      found = true;
+      element.val($(this).val());
+      element.change();
       // If value is found, stop loop
       return false;
     }
   });
-
-  return found;
 }
 
-function setDate(inputName, value) {
-  var dates = value.split("/");
-  setSelectValue(inputName + "Day", dates[0], true);
-  setSelectValue(inputName + "_DTEDay", dates[0], true);
-  setSelectValue(inputName + "Month", parseInt(dates[1]), true);
-  setSelectValue(inputName + "_DTEMonth", parseInt(dates[1]), true);
-  fillTextInput(inputName + "Year", dates[2]);
-  fillTextInput(inputName + "_DTEYear", dates[2]);
 
-  return true;
-}
 
 function setAddressValue(inputName, addressJSON, stateSelect=false, secondSelector=false) {
   var address = JSON.parse(addressJSON), value;

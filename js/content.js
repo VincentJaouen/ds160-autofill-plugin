@@ -59,6 +59,7 @@ function fillEmbassy(info) {
 }
 
 function fillDS(data) {
+  console.log(data);
   // If page is index, set location as Argentina
   var dropdown = document.getElementById('ctl00_SiteContentPlaceHolder_ucLocation_ddlLocation');
   if(dropdown && dropdown.value == '') {
@@ -67,10 +68,8 @@ function fillDS(data) {
   }
   
   var securityQuestionInput = document.getElementById('ctl00_SiteContentPlaceHolder_txtAnswer');
-  console.log('elem', securityQuestionInput);
-
   if (securityQuestionInput) {
-    securituQuestionInput.val('PASSPAL');
+    securityQuestionInput.value = 'PASSPAL';
     clickContinue();
   }
 
@@ -79,14 +78,15 @@ function fillDS(data) {
 
   if (match && match.length > 0 && match[0]) {
     var parameter = match[0].split('=')[1],
-      mapper = InputMapper[parameter];
-    if(mapper) {
-      var iterator = new MapperIterator(inputMapper[parameter]);
+      mapper = InputMapper[parameter],
+      errors = errorsPresent();
+    if(mapper && !errors) {
+      var iterator = new MapperIterator(InputMapper[parameter]);
       fillFromMapperIterator(iterator, data);
       clickNext();
     }
     else {
-      console.log('No mapper');
+      console.log('Errors in form or no mapper');
     }
   }
 }

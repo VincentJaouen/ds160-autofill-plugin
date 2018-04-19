@@ -1,5 +1,3 @@
-const DEFAULT_HELPER = "fillTextInput";
-
 function getData(allData, mapRow) {
   // If data function is given, get data from it
   if(mapRow.data && typeof mapRow.data == 'function') {
@@ -10,66 +8,62 @@ function getData(allData, mapRow) {
   return allData[mapRow.key];
 }
 
-function fillInput(mapRow, data, opts={}) {
-  opts = {...opts};
-  var helperName = mapRow.helper || DEFAULT_HELPER;
-  var helperFunc = window[helperName];
-  if(typeof helperFunc == 'function') {
-    helperFunc(mapRow.selector, data, opts);
-  }
-}
-
 function fillMultiple(mapRow, data) {
-  var table = $('table[id*="'+mapRow.selector+'"]'),
-    rowsPresent = table.find('tr'),
-    diffRows = data.length - rowsPresent.length,
-    addButton = rowsPresent.first().find('.addone a'),
-    removeButton = rowsPresent.first().find('.removeone a'),
+  var table = $('#ctl00_SiteContentPlaceHolder_FormView1_' + mapRow.selector),
+    rowsButtons = table.find('.addremove'),
+    diffRows = data.length - rowsButtons.length,
+    addButton = rowsButtons.first().find('.addone a'),
+    removeButton = rowsButtons.last().find('.removeone a'),
     actionEval = diffRows > 0 ? addButton.attr('href') : removeButton.attr('href');
 
-  // If not enough rows, add as many as needed
+  diffRows = Math.abs(diffRows);
+
+  // Add or delete as many rows as needed
   while(diffRows > 0) {
     if(actionEval) {
       window.location = actionEval;
     }
     --diffRows;
   }
-  // If too many rows, remove as many as needed
-  while(diffRows < 0) {
-    if(actionEval) {
-      window.location = actionEval;
-    }
-    ++diffRows;
-  }
 
   for(var i = 0 ; i < data.length ; ++i) {
-    var options = { container: mapRow.selector, controller: i },
-      iterator = new MapperIterator(mapRow.helper);
-    fillFromMapperIterator(iterator, data[i], options);
+    var options = {
+        container: mapRow.selector,
+        controller: i
+      },
+      iterator = new MapperIterator(mapRow.type),
+      dataRow = data[i];
+    
+    fillFromMapperIterator(iterator, dataRow, options);
   }
 }
+
 
 function fillFromMapperIterator(mapIterator, data, opts={}) {
   var mapRow = mapIterator.next();
   // If mapRow or data is empty, no more inputs to fill out.
   // We can leave the recursion
   if(!mapRow || !data) {
+    console.log('map or data missing', mapRow, data);
     return;
   }
+
+  var timer = (mapRow.timer || 200) * (opts.controller * 3 || 1);
 
   setTimeout(function() {
     var rowData = getData(data, mapRow);
     // If helper is array then row is multiple
-    if (Array.isArray(mapRow.helper)) {
+    if (Array.isArray(mapRow.type)) {
       fillMultiple(mapRow, rowData);
     }
     else {
       var rowData = getData(data, mapRow);
-      fillInput(mapRow, rowData, opts);
+
+      fillOutInput(mapRow.selector, rowData, mapRow.type, opts);
     }
     
     fillFromMapperIterator(mapIterator, data, opts);
-  }, mapRow.timer ? mapRow.timer : 100);
+  }, timer);
 }
 
 function fillOutPageSignCertifyOld(personalData) {
