@@ -26,13 +26,13 @@ function fillMultiple(mapRow, data) {
     --diffRows;
   }
 
-  for(var i = 0 ; i < data.length ; ++i) {
+  for(var ctl = 0 ; ctl < data.length ; ++ctl) {
     var options = {
         container: mapRow.selector,
-        controller: i
+        ctl
       },
       iterator = new MapperIterator(mapRow.type),
-      dataRow = data[i];
+      dataRow = data[ctl];
     
     fillFromMapperIterator(iterator, dataRow, options);
   }
@@ -48,7 +48,7 @@ function fillFromMapperIterator(mapIterator, data, opts={}) {
     return;
   }
 
-  var timer = (mapRow.timer || 200) * (opts.controller * 3 || 1);
+  var timer = (mapRow.timer || 200) * (opts.ctl * 3 || 1);
 
   setTimeout(function() {
     var rowData = getData(data, mapRow);

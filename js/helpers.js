@@ -5,12 +5,13 @@ const valueToBoxSuffix = {
   female: "_1"
 };
 
-const typeToCodeMap = {
+const typeCodeMap = {
   text: "tbx",
   radio: "rbl",
   dropdown: "ddl",
   checkbox: "cbex",
   date: "composite",
+  ssn: "composite",
   default: "tbx"
 };
 
@@ -21,6 +22,7 @@ const typeToHelper = {
   dropdown: findInSelect,
   checkbox: checkBox,
   date: setDate,
+  ssn: fillSSN,
   default: fillOutTextInput
 };
 
@@ -35,13 +37,13 @@ function mapKeyToValue(key, mapper) {
   return mapper[key] || mapper['default'];
 }
 
-function getElementId(inputName, typeCode, opts={}) {
+function getElementId(inputName, typeCode, container, ctl) {
   var id = "ctl00_SiteContentPlaceHolder_FormView1";
-  if(opts.container) {
-    id += "_" + opts.container;
+  if(container) {
+    id += "_" + container;
   }
-  if(opts.controller || opts.controller == 0) {
-    id += "_ctl0" + opts.controller;
+  if(ctl || ctl == 0) {
+    id += "_ctl0" + ctl;
   }
   return id + "_" + typeCode + inputName;
 }
@@ -51,7 +53,6 @@ function getElement(elementId) {
 }
 
 function sanitizeValue(value, opts) {
-  console.log('sanitize', value);
   if(!value) {
     return '';
   }
@@ -72,22 +73,28 @@ function sanitizeValue(value, opts) {
 
 function fillOutInput(name, value, type = 'text', opts={}) {
   // Needs to copy opts to not modify for the other rows
-  var typeCode = mapKeyToValue(type, typeToCodeMap),
-    helper = mapKeyToValue(type, typeToHelper);
+  var helper = mapKeyToValue(type, typeToHelper);
 
   if(typeCode == "composite") {
-    helper(name, value, opts);
+    helper(name, value, opts.container, opts.ctl);
     return;
   }
 
-  var elementId = getElementId(name, typeCode, opts),
-    opts = {
+  var opts = {
       ...mapKeyToValue(type, typeToDefaultOptions),
       ...opts
     },
     value = sanitizeValue(value, opts);
 
-  helper(elementId, value);
+  if (!value || value == "NA") {
+    // If value is empty or says "NA",
+    // try to check does not apply box
+    checkBox(name + "_NA");
+    console.log(name + " empty");
+    return false;
+  }
+
+  helper(name, value, opts.container, opts.ctl);
 }
 
 function errorsPresent() {
@@ -114,46 +121,43 @@ function clickContinue() {
   continueButton.click();
 }
 
-function checkBox(elementId) {
+function checkBox(name, container, ctl, radio=false) {
+  var type = radio ? 'rbl' : 'cbex';
+  var elementId(name, type, container, ctl);
+  console.log('CHECK BOX', elementId);
   if (!getElement(elementId).is(':checked')) {
     $('label[for="' + elementId + '"]').click();
   }
 }
 
-function checkYesNo(elementId, value) {
-  return checkBox(elementId + valueToBoxSuffix[value]);
+function checkYesNo(inputName, value, container, ctl) {
+  checkBox(inputName + valueToBoxSuffix[value]);
 }
 
-function fillOutTextInput(elementId, value) {
-  if (!value || value == "NA") {
-    // If value is empty or says "NA",
-    // try to check does not apply box
-    checkBox(elementId + "_NA");
-    console.log(elementId + " empty");
-    return false;
-  }
-
-  var element = getElement(elementId),
+function fillOutTextInput(name, value, container, ctl) {
+  var elementId = getElementId(name, 'tbx', container, ctl),
+    element = getElement(elementId),
   // Check if input has a character limit
     maxLength = parseInt(element.attr('maxlength'));
   if (maxLength) {
     value = value.substring(0, maxLength);
   }
 
+  console.log('fill text ', element, value);
+
   element.val(value);
 }
 
-function fillTextarea(selector, rawValue) {
-  var value = rawValue.trim().replace(/\s\s+/g, ' ');
-  $('textarea[name$="' + selector + '"]').text(value);
-  return true;
+function fillTextarea(name, value, container, ctl) {
+  var elementId = getElementId(name, 'txt', container, ctl);
+  getElement(elementId).text(value);
 }
 
-function findInSelect(selectId, value) {
-  var selector = getElement(selectId),
+function findInSelect(name, value, container, ctl) {
+  var elementId = getElement(selectId, 'ddl', container, ctl),
     found = false;
   // Search for value in options
-  $(selector).find('option').each(function() {
+  getElement(elementId).find('option').each(function() {
     var optionLabel = $(this).text();
     if(optionLabel.indexOf(value) != -1 ||
         typeof value === 'string' &&
@@ -168,21 +172,19 @@ function findInSelect(selectId, value) {
   return found;
 }
 
-function setDate(elementName, value, opts) {
-  var dates = value.split("/"),
-    dropdownId = getElementId(elementName, mapKeyToValue("dropdown", typeToCodeMap)),
-    textInputId = getElementId(elementName, mapKeyToValue("text", typeToCodeMap));
-  console.log('setDate', dropdownId, textInputId);
-  setSelectValue(dropdownId + "Day", dates[0], true);
-  setSelectValue(dropdownId + "_DTEDay", dates[0], true);
-  setSelectValue(dropdownId + "Month", parseInt(dates[1]), true);
-  setSelectValue(dropdownId + "_DTEMonth", parseInt(dates[1]), true);
-  fillOutTextInput(textInputId + "Year", dates[2]);
-  fillOutTextInput(textInputId + "_DTEYear", dates[2]);
+function setDate(name, value, container, ctl) {
+  var dates = value.split("/");
+  setSelectValue(name + "Day", dates[0], true);
+  setSelectValue(name + "_DTEDay", dates[0], true);
+  setSelectValue(name + "Month", parseInt(dates[1]), true);
+  setSelectValue(name + "_DTEMonth", parseInt(dates[1]), true);
+  fillOutTextInput(name + "Year", dates[2]);
+  fillOutTextInput(name + "_DTEYear", dates[2]);
 }
 
-function setSelectValue(selectId, value, fromIndex = false) {
-  var element = getElement(selectId);
+function setSelectValue(name, value, container, ctl, fromIndex = false) {
+  var elementId = getElementId(name, 'ddl', container, ctl),
+    element = getElement(elementId);
   // If fromIndex is set, search by value of index
   element.find('option').each(function(index, optionValue) {
     if($(this).val() == value ||
@@ -253,12 +255,17 @@ function setAddressValue(inputName, addressJSON, stateSelect=false, secondSelect
   return true;
 }
 
-function fillSSN(inputName, value) {
-  var ssn_number = value.split("-");
-  fillNumberInput(inputName + "1", ssl_number[0]);
-  fillNumberInput(inputName + "2", ssl_number[1]);
-  fillNumberInput(inputName + "3", ssl_number[2]);
-  return true;
+function fillSSN(inputName, value) { 
+  if(!value) {
+    checkBox(inputName);
+    return false;
+  }
+
+  var ssn_number = value.split("-"),
+    elementId = getElementId(inputName, 'tbx');
+  fillOutTextInput(elementId + "1", ssl_number[0]);
+  fillOutTextInput(elementId + "2", ssl_number[1]);
+  fillOutTextInput(elementId + "3", ssl_number[2]);
 }
 
 function translate(query) {

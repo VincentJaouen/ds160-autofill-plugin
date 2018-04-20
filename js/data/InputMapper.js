@@ -5,7 +5,7 @@ const InputMapper = {
     { key: "gender", type: "radio", selector: "APP_GENDER" },
     { key: "full_name", data: (data) => data['first_name'] + ' ' + data['last_name'], selector: "APP_FULL_NAME_NATIVE" },
     { key: "alias_yn", type: "radio", selector: "OtherNames" },
-    { key: "alias", selector: "DListAlias", timer: 1500, type: [
+    { key: "alias", selector: "DListAlias", timer: 3500, type: [
       { key: "given_names", selector: "SURNAME", timer: 1000 },
       { key: "surnames", selector: "GIVEN_NAME", timer: 1000 }
     ] },
@@ -24,7 +24,14 @@ const InputMapper = {
     { key: "other_nationality_page", selector: "dtlOTHER_NATL", timer: 800, type: [
       { key: "other_nationality", selector: "OTHER_NATL", type: "dropdown" },
       { key: "other_passport_y/n", selector: "OTHER_PPT_IND", type: "radio"},
-      { key: "other_passport_number", selector: "OTHER_PPT_NUM" }
+      { key: "other_passport_number", selector: "OTHER_PPT_NUM", timer: 600 }
     ] },
+    { key: "other_residence_yn", selector: "PermResOtherCntryInd", type: "radio", timer: 800 },
+    { key: "other_residence_page", selector: "dtlOthPermResCntry", timer: 1200, type: [
+      { key: "other_residence", selector: "OthPermResCntry", type: "dropdown" }
+    ] },
+    { key: "national_id", selector: "APP_NATIONAL_ID" },
+    { key: "social_number", selector: "APP_SSN", type: "ssn" },
+    { key: "tax_ID", selector: "APP_TAX_ID" }
   ],
 };
