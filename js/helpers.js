@@ -18,10 +18,12 @@ const typeCodeMap = {
 const typeToHelper = {
   text: fillOutTextInput,
   number: fillOutTextInput,
+  email: fillOutTextInput,
   radio: checkYesNo,
   dropdown: findInSelect,
   checkbox: checkBox,
   date: setDate,
+  address: fillOutAddress,
   ssn: fillSSN,
   default: fillOutTextInput
 };
@@ -29,7 +31,9 @@ const typeToHelper = {
 const typeToDefaultOptions = {
   text: { latinize: true, alphanumerize: true },
   number: { numerize: true },
+  email: { latinize: true },
   radio: { radio: true },
+  address: { json: true },
   default: {}
 };
 
@@ -57,6 +61,10 @@ function sanitizeValue(value, opts) {
     return '';
   }
 
+  if(opts.json) {
+    return JSON.parse(value);
+  }
+
   value = value.trim().replace(/\s\s+/g, ' ');
   if(opts.latinize) {
     value = value.latinize();
@@ -73,14 +81,8 @@ function sanitizeValue(value, opts) {
 
 function fillOutInput(name, value, type = 'text', opts={}) {
   // Needs to copy opts to not modify for the other rows
-  var helper = mapKeyToValue(type, typeToHelper);
-
-  if(typeCode == "composite") {
-    helper(name, value, opts.container, opts.ctl);
-    return;
-  }
-
-  var opts = {
+  var helper = mapKeyToValue(type, typeToHelper),
+    opts = {
       ...mapKeyToValue(type, typeToDefaultOptions),
       ...opts
     },
@@ -122,8 +124,8 @@ function clickContinue() {
 }
 
 function checkBox(name, container, ctl, radio=false) {
-  var type = radio ? 'rbl' : 'cbex';
-  var elementId(name, type, container, ctl);
+  var type = radio ? 'rbl' : 'cbex',
+    elementId = getElementId(name, type, container, ctl);
   console.log('CHECK BOX', elementId);
   if (!getElement(elementId).is(':checked')) {
     $('label[for="' + elementId + '"]').click();
@@ -131,7 +133,7 @@ function checkBox(name, container, ctl, radio=false) {
 }
 
 function checkYesNo(inputName, value, container, ctl) {
-  checkBox(inputName + valueToBoxSuffix[value]);
+  checkBox(inputName + valueToBoxSuffix[value], container, ctl, true);
 }
 
 function fillOutTextInput(name, value, container, ctl) {
@@ -139,11 +141,9 @@ function fillOutTextInput(name, value, container, ctl) {
     element = getElement(elementId),
   // Check if input has a character limit
     maxLength = parseInt(element.attr('maxlength'));
-  if (maxLength) {
+  if (value && maxLength) {
     value = value.substring(0, maxLength);
   }
-
-  console.log('fill text ', element, value);
 
   element.val(value);
 }
@@ -154,16 +154,18 @@ function fillTextarea(name, value, container, ctl) {
 }
 
 function findInSelect(name, value, container, ctl) {
-  var elementId = getElement(selectId, 'ddl', container, ctl),
+  var elementId = getElementId(name, 'ddl', container, ctl),
+    element = getElement(elementId);
     found = false;
+  console.log('find in select', value);
   // Search for value in options
-  getElement(elementId).find('option').each(function() {
+  element.find('option').each(function() {
     var optionLabel = $(this).text();
     if(optionLabel.indexOf(value) != -1 ||
         typeof value === 'string' &&
         optionLabel.alphanumerize().toUpperCase().indexOf(value.alphanumerize().toUpperCase()) != -1) {
-      $(selector).val($(this).val());
-      $(selector).change();
+      element.val($(this).val());
+      element.change();
       found = true;
       return false;
     }
@@ -174,17 +176,18 @@ function findInSelect(name, value, container, ctl) {
 
 function setDate(name, value, container, ctl) {
   var dates = value.split("/");
-  setSelectValue(name + "Day", dates[0], true);
-  setSelectValue(name + "_DTEDay", dates[0], true);
-  setSelectValue(name + "Month", parseInt(dates[1]), true);
-  setSelectValue(name + "_DTEMonth", parseInt(dates[1]), true);
-  fillOutTextInput(name + "Year", dates[2]);
-  fillOutTextInput(name + "_DTEYear", dates[2]);
+  setSelectValue(name + "Day", dates[0], container, ctl, true);
+  setSelectValue(name + "_DTEDay", dates[0], container, ctl, true);
+  setSelectValue(name + "Month", parseInt(dates[1]), container, ctl, true);
+  setSelectValue(name + "_DTEMonth", parseInt(dates[1]), container, ctl, true);
+  fillOutTextInput(name + "Year", dates[2], container, ctl);
+  fillOutTextInput(name + "_DTEYear", dates[2], container, ctl);
 }
 
 function setSelectValue(name, value, container, ctl, fromIndex = false) {
   var elementId = getElementId(name, 'ddl', container, ctl),
     element = getElement(elementId);
+  console.log('setselectvalue', elementId);
   // If fromIndex is set, search by value of index
   element.find('option').each(function(index, optionValue) {
     if($(this).val() == value ||
@@ -203,56 +206,23 @@ function setSelectValue(name, value, container, ctl, fromIndex = false) {
 
 
 
-function setAddressValue(inputName, addressJSON, stateSelect=false, secondSelector=false) {
-  var address = JSON.parse(addressJSON), value;
+function fillOutAddress(inputName, address, container, ctl) {
+  console.log(address);
+  fillOutInput(inputName + "_LN1", address['street'], 'text');
+  fillOutInput(inputName + "StreetAddress1", address['street'], 'text');
+  fillOutInput(inputName + "Addr1", address['street'], 'text');
 
-  if(address['street'].trim() != "") {
-    fillTextInput(inputName + "_LN1", address['street']);
-    fillTextInput(inputName + "StreetAddress1", address['street']);
-    fillTextInput(inputName + "Addr1", address['street']);
-  } else {
-    fillTextInput(inputName + "_LN1", "MISSING");
-    fillTextInput(inputName + "StreetAddress1", "MISSING");
-    fillTextInput(inputName + "Addr2", address['street']);
-  }
-  fillTextInput(inputName + "_LN2", address['line2']);
-  fillTextInput(inputName + "StreetAddress2", address['line2']);
-  if (address['city'].trim() != "") {
-    fillTextInput(inputName + "_CITY", address['city']);
-    fillTextInput(inputName + "City", address['city']);
-  } else {
-    fillTextInput(inputName + "_CITY", "MISSING");
-    fillTextInput(inputName + "City", "MISSING");
-  }
-  var zipSelector = inputName + "_POSTAL_CD";
-  if (secondSelector) {
-    zipSelector = secondSelector + "_POSTAL_CD";
-  }
-  if (address['zip']) {
-    fillTextInput(zipSelector, address['zip'].numerize());
-    fillTextInput(inputName + "PostalZIPCode", address['zip'].numerize());
-  } else {
-    checkBox(zipSelector + "_NA");
-  }
-  var stateSelector = inputName + "_STATE";
-  if (secondSelector) {
-    stateSelector = secondSelector + "_STATE";
-  }
-  if (address['state']) {
-    if (stateSelect) {
-      setSelectValue(stateSelector, address['state']);
-    } else {
-      fillTextInput(stateSelector, address['state']);
-    }
-  } else {
-    checkBox(stateSelector + "_NA");
-    checkBox(secondSelector + "_ADDR_STATE_NA");
-  }
-  var country_status = setSelectValue("ddlCountry", address['country']);
-  if(!country_status && setSelectValue(inputName + "Country", address['country']) && !setSelectValue("DropDownList2", address['country'])) {
-    setSelectValue("ddlCountry", "ARG");
-  }
-  return true;
+  fillOutInput(inputName + "_LN2", address['line2'], 'text');
+  fillOutInput(inputName + "StreetAddress2", address['line2'], 'text');
+
+  fillOutInput(inputName + "_CITY", address['city'], 'text');
+  fillOutInput(inputName + "City", address['city'], 'text');
+
+  fillOutInput(inputName + "_POSTAL_CD", address['zip'], 'number');
+  fillOutInput(inputName + "PostalZIPCode", address['zip'], 'number');
+  
+  fillOutInput(inputName + "_STATE", address['state'], 'text');
+  fillOutInput("Country", address['country'], 'dropdown');
 }
 
 function fillSSN(inputName, value) { 
@@ -261,11 +231,10 @@ function fillSSN(inputName, value) {
     return false;
   }
 
-  var ssn_number = value.split("-"),
-    elementId = getElementId(inputName, 'tbx');
-  fillOutTextInput(elementId + "1", ssl_number[0]);
-  fillOutTextInput(elementId + "2", ssl_number[1]);
-  fillOutTextInput(elementId + "3", ssl_number[2]);
+  var ssn_number = value.split("-");
+  fillOutTextInput(inputName + "1", ssn_number[0]);
+  fillOutTextInput(inputName + "2", ssn_number[1]);
+  fillOutTextInput(inputName + "3", ssn_number[2]);
 }
 
 function translate(query) {

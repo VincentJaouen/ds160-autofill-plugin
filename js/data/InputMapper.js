@@ -26,7 +26,7 @@ const InputMapper = {
       { key: "other_passport_y/n", selector: "OTHER_PPT_IND", type: "radio"},
       { key: "other_passport_number", selector: "OTHER_PPT_NUM", timer: 600 }
     ] },
-    { key: "other_residence_yn", selector: "PermResOtherCntryInd", type: "radio", timer: 800 },
+    { key: "other_residence_yn", selector: "PermResOtherCntryInd", type: "radio" },
     { key: "other_residence_page", selector: "dtlOthPermResCntry", timer: 1200, type: [
       { key: "other_residence", selector: "OthPermResCntry", type: "dropdown" }
     ] },
@@ -34,4 +34,13 @@ const InputMapper = {
     { key: "social_number", selector: "APP_SSN", type: "ssn" },
     { key: "tax_ID", selector: "APP_TAX_ID" }
   ],
+  AddressPhone: [
+    { key: "user_address", selector: "APP_ADDR", type: "address" },
+    { key: "same_mailing_address_yn", selector: "MailingAddrSame", type: "radio" },
+    { key: "mailing_address", selector: "MAILING_ADDR", type: "address", timer: 400 },
+    { key: "phone_number", selector: "APP_HOME_TEL", type: "number" },
+    { key: "secondary_phone_number", selector: "APP_MOBILE_TEL" },
+    { key: "work_phone_number", selector: "APP_BUS_TEL" },
+    { key: "email", selector: "APP_EMAIL_ADDR", data: (data) => "application@passpal.co", type: "email" }
+  ]
 };

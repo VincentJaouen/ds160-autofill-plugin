@@ -297,6 +297,9 @@ function fillOutPageTravelOld(personalData) {
     if(interaction == "otherpurpose") {
       otherpurpose = setSelectValue("OtherPurpose", value);
     }
+    if(interaction == "us_stay_address") {
+      staystreet = staycity = staystate = stayzipcode = setAddressValue("tbx", value);
+    }
     if(interaction == "trippayment") {
       switch(value) {
         case "self":
