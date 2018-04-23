@@ -80,6 +80,7 @@ function sanitizeValue(value, opts) {
 }
 
 function fillOutInput(name, value, type = 'text', opts={}) {
+  console.log('fill out', name, value, type);
   // Needs to copy opts to not modify for the other rows
   var helper = mapKeyToValue(type, typeToHelper),
     opts = {
@@ -91,8 +92,7 @@ function fillOutInput(name, value, type = 'text', opts={}) {
   if (!value || value == "NA") {
     // If value is empty or says "NA",
     // try to check does not apply box
-    checkBox(name + "_NA");
-    console.log(name + " empty");
+    checkBox(name + "_NA", opts.container, opts.ctl);
     return false;
   }
 
@@ -126,7 +126,6 @@ function clickContinue() {
 function checkBox(name, container, ctl, radio=false) {
   var type = radio ? 'rbl' : 'cbex',
     elementId = getElementId(name, type, container, ctl);
-  console.log('CHECK BOX', elementId);
   if (!getElement(elementId).is(':checked')) {
     $('label[for="' + elementId + '"]').click();
   }
@@ -155,23 +154,24 @@ function fillTextarea(name, value, container, ctl) {
 
 function findInSelect(name, value, container, ctl) {
   var elementId = getElementId(name, 'ddl', container, ctl),
-    element = getElement(elementId);
-    found = false;
-  console.log('find in select', value);
-  // Search for value in options
-  element.find('option').each(function() {
-    var optionLabel = $(this).text();
-    if(optionLabel.indexOf(value) != -1 ||
-        typeof value === 'string' &&
-        optionLabel.alphanumerize().toUpperCase().indexOf(value.alphanumerize().toUpperCase()) != -1) {
-      element.val($(this).val());
-      element.change();
-      found = true;
-      return false;
-    }
-  });
+    element = document.getElementById(elementId);
+  if(!element) {
+    console.log('Could not find', elementId);
+    return false;
+  }
 
-  return found;
+  for(var i = 0 ; i < element.options.length ; ++i) {
+    var optionValue = element.options[i].value,
+      label = element.options[i].text.alphanumerize().toUpperCase();
+    if(label.indexOf(value) != -1 ||
+      typeof value == "string" &&
+      label.indexOf(value.alphanumerize().toUpperCase()) != -1) {
+      element.value = optionValue;
+      element.dispatchEvent(new Event("change"));
+
+      return true;
+    }
+  }
 }
 
 function setDate(name, value, container, ctl) {
@@ -187,7 +187,6 @@ function setDate(name, value, container, ctl) {
 function setSelectValue(name, value, container, ctl, fromIndex = false) {
   var elementId = getElementId(name, 'ddl', container, ctl),
     element = getElement(elementId);
-  console.log('setselectvalue', elementId);
   // If fromIndex is set, search by value of index
   element.find('option').each(function(index, optionValue) {
     if($(this).val() == value ||
@@ -207,7 +206,7 @@ function setSelectValue(name, value, container, ctl, fromIndex = false) {
 
 
 function fillOutAddress(inputName, address, container, ctl) {
-  console.log(address);
+  console.log('filloutAddress', inputName, address);
   fillOutInput(inputName + "_LN1", address['street'], 'text');
   fillOutInput(inputName + "StreetAddress1", address['street'], 'text');
   fillOutInput(inputName + "Addr1", address['street'], 'text');
@@ -219,7 +218,7 @@ function fillOutAddress(inputName, address, container, ctl) {
   fillOutInput(inputName + "City", address['city'], 'text');
 
   fillOutInput(inputName + "_POSTAL_CD", address['zip'], 'number');
-  fillOutInput(inputName + "PostalZIPCode", address['zip'], 'number');
+  fillOutInput(inputName + "ZIPCode", address['zip'], 'number');
   
   fillOutInput(inputName + "_STATE", address['state'], 'text');
   fillOutInput("Country", address['country'], 'dropdown');

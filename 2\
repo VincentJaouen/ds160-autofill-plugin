@@ -60,50 +60,10 @@ const InputMapper = {
     ], data: (data) => [{ passport_lost_explain: data['passport_lost_explain'] }] }
   ],
   Travel: [
-    { key: "trip_purpose", selector: "dlPrincipalAppTravel", data: data => [{ visa_category: "B", visa_type: "B1-B2" }], type: [
-      { key: "visa_category", selector: "PurposeOfTrip", type: "dropdown" },
-      { key: "visa_type", selector: "OtherPurpose", type: "dropdown", timer: 400 }
+    { key: "trip_purpose", selector: "dlPrincipalAppTravel", type: [
+      { key: "visa_type", selector: "PurposeOfTrip", type: "dropdown", data: (data) => "B" }
     ] },
-    { key: "specific_travel_plans", selector: "SpecificTravel", type: "radio", data: data => "No", timer: 1000 },
-    { key: "trippayment", selector: "WhoIsPaying", type: "dropdown", timer: 1500 },
-    { key: "arrival_date", selector: "TRAVEL", type: "date" },
-    { key: "time_in_country", selector: "TRAVEL_LOS" },
-    { key: "time_in_country_frame", selector: "TRAVEL_LOS_CD", type: "dropdown" },
-    { key: "us_stay_address", selector: "", type: "address", timer: 4000 },
-    
-  ],
-  TravelCompanions: [
-    { key: "travelcompanions_yn", selector: "OtherPersonsTravelingWithYou", type: "radio" },
-    { key: "grouptravel_yn", selector: "GroupTravel", type: "radio" },
-    { key: "grouptravel_name", selector: "GroupName" },
-    { key: "travel_companions_page", selector: "dlTravelCompanions", data: (data) => transformCompanionData(data, "travel_companions_page"), timer: 1000, type: [
-      { key: "travel_companion_first", selector: "GivenName" },
-      { key: "travel_companion_last", selector: "Surname" },
-      { key: "travel_companion_relation", selector: "TCRelationship", type: "dropdown" }
-    ]},
-
+    { key: "specific_travel_plans", selector: "SpecificTravel", type: "radio", data: data => "No" },
+    { key: "trippayment", selector: "WhoIsPaying", type: "dropdown" }
   ]
 };
-
-function transformCompanionData(data, key) {
-  var dataCompanions = data[key];
-  for(var i = 0, dataSlice = dataCompanions[0] ; i < dataCompanions.length ; ++i , dataSlice = dataCompanions[i]) {
-    console.log(dataCompanions);
-    switch(dataSlice["travel_companion_relation"]) {
-      case "mother":
-        dataSlice["travel_companion_first"] = data["mother_first_name"];
-        dataSlice["travel_companion_last"] = data["mother_last_name"];
-        dataSlice["travel_companion_relation"] = "PARENT";
-        console.log("MOTHERRRRR");
-        break;
-      case "father":
-        break;
-      case "spouse":
-        break;
-    }
-  }
-
-  console.log('transformed', dataCompanions);
-
-  return dataCompanions;
-}

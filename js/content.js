@@ -68,7 +68,6 @@ function fillDS(data) {
   }
   
   var securityQuestionInput = document.getElementById('ctl00_SiteContentPlaceHolder_txtAnswer');
-  console.log(securityQuestionInput);
   if (securityQuestionInput) {
     securityQuestionInput.value = 'PASSPAL';
     clickContinue();

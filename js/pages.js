@@ -9,6 +9,10 @@ function getData(allData, mapRow) {
 }
 
 function fillMultiple(mapRow, data) {
+  if(!data) {
+    data = [];
+  }
+
   var table = $('#ctl00_SiteContentPlaceHolder_FormView1_' + mapRow.selector),
     rowsButtons = table.find('.addremove'),
     diffRows = data.length - rowsButtons.length,
@@ -57,8 +61,6 @@ function fillFromMapperIterator(mapIterator, data, opts={}) {
       fillMultiple(mapRow, rowData);
     }
     else {
-      var rowData = getData(data, mapRow);
-
       fillOutInput(mapRow.selector, rowData, mapRow.type, opts);
     }
     
