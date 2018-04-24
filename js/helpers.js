@@ -20,7 +20,7 @@ const typeToHelper = {
   number: fillOutTextInput,
   email: fillOutTextInput,
   radio: checkYesNo,
-  dropdown: findInSelect,
+  dropdown: fillOutSelect,
   checkbox: checkBox,
   date: setDate,
   address: fillOutAddress,
@@ -54,6 +54,11 @@ function getElementId(inputName, typeCode, container, ctl) {
 
 function getElement(elementId) {
   return $('#' + elementId);
+}
+
+function setElementValue(element, value) {
+  element.value = value;
+  element.dispatchEvent(new Event("change"));
 }
 
 function sanitizeValue(value, opts) {
@@ -92,7 +97,7 @@ function fillOutInput(name, value, type = 'text', opts={}) {
   if (!value || value == "NA") {
     // If value is empty or says "NA",
     // try to check does not apply box
-    checkBox(name + "_NA", opts.container, opts.ctl);
+    checkBox(name + "_NA", value, opts.container, opts.ctl);
     return false;
   }
 
@@ -100,9 +105,9 @@ function fillOutInput(name, value, type = 'text', opts={}) {
 }
 
 function errorsPresent() {
-  var errorDiv = getElement('ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary');
+  var errorDiv = getElement('ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary').html();
   // If error div is not empty, don't click next
-  if(errorDiv.html().trim() != '') {
+  if(errorDiv && errorDiv.trim() != '') {
     return true;
   }
 
@@ -123,16 +128,25 @@ function clickContinue() {
   continueButton.click();
 }
 
-function checkBox(name, container, ctl, radio=false) {
-  var type = radio ? 'rbl' : 'cbex',
-    elementId = getElementId(name, type, container, ctl);
-  if (!getElement(elementId).is(':checked')) {
-    $('label[for="' + elementId + '"]').click();
-  }
+function checkBox(name, value, container, ctl) {
+  // Check for 'cbex'
+  var  elementId = getElementId(name, "cbex", container, ctl);
+  checkElement(elementId);
+  // Check for 'cbx'
+  var  elementId = getElementId(name, "cbx", container, ctl);
+  console.log(name, elementId);
+  checkElement(elementId);
 }
 
 function checkYesNo(inputName, value, container, ctl) {
-  checkBox(inputName + valueToBoxSuffix[value], container, ctl, true);
+  var elementId = getElementId(inputName + valueToBoxSuffix[value], 'rbl', container, ctl);
+  checkElement(elementId);
+}
+
+function checkElement(elementId) {
+  if (!getElement(elementId).is(':checked')) {
+    $('label[for="' + elementId + '"]').click();
+  }
 }
 
 function fillOutTextInput(name, value, container, ctl) {
@@ -152,12 +166,21 @@ function fillTextarea(name, value, container, ctl) {
   getElement(elementId).text(value);
 }
 
-function findInSelect(name, value, container, ctl) {
+function fillOutSelect(name, value, container, ctl) {
   var elementId = getElementId(name, 'ddl', container, ctl),
     element = document.getElementById(elementId);
   if(!element) {
     console.log('Could not find', elementId);
     return false;
+  }
+  
+  // Check first if value is in option values
+  for(var i = 0 ; i < element.options.length ; ++i) {
+    var optionValue = element.options[i].value;
+    if(optionValue.toUpperCase() == value.toUpperCase()) {
+      setElementValue(element, optionValue);
+      return true;
+    }
   }
 
   for(var i = 0 ; i < element.options.length ; ++i) {
@@ -166,9 +189,8 @@ function findInSelect(name, value, container, ctl) {
     if(label.indexOf(value) != -1 ||
       typeof value == "string" &&
       label.indexOf(value.alphanumerize().toUpperCase()) != -1) {
-      element.value = optionValue;
-      element.dispatchEvent(new Event("change"));
 
+      setElementValue(element, optionValue);
       return true;
     }
   }
@@ -202,6 +224,8 @@ function setSelectValue(name, value, container, ctl, fromIndex = false) {
     }
   });
 }
+
+
 
 
 

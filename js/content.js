@@ -102,8 +102,6 @@ function fillForm(info) {
   }
 }
 
-
-
 $( document ).ready(function() {
   ifStarted(fillForm);
 

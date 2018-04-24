@@ -22,26 +22,25 @@ function fillMultiple(mapRow, data) {
 
   diffRows = Math.abs(diffRows);
 
-  // Add or delete as many rows as needed
-  while(diffRows > 0) {
-    if(actionEval) {
-      window.location = actionEval;
-    }
-    --diffRows;
-  }
-
   for(var ctl = 0 ; ctl < data.length ; ++ctl) {
-    var options = {
-        container: mapRow.selector,
-        ctl
-      },
-      iterator = new MapperIterator(mapRow.type),
-      dataRow = data[ctl];
-    
-    fillFromMapperIterator(iterator, dataRow, options);
+    addRowAndFillOut(actionEval, data[ctl], mapRow, ctl);
   }
 }
 
+function addRowAndFillOut(actionEval, dataRow, mapRow, ctl) {
+  var iterator = new MapperIterator(mapRow.type);
+  setTimeout(function() {
+    // If row doesn't exist, add it
+    var selector = '[id*="' + mapRow.selector + '_ctl0' + ctl + '"]';
+    if(!document.querySelector(selector) && actionEval) {
+      window.location = actionEval;
+    }
+    fillFromMapperIterator(iterator, dataRow, {
+        container: mapRow.selector,
+        ctl
+      });
+  }, 1000 * ctl);
+}
 
 function fillFromMapperIterator(mapIterator, data, opts={}) {
   var mapRow = mapIterator.next();
@@ -52,16 +51,19 @@ function fillFromMapperIterator(mapIterator, data, opts={}) {
     return;
   }
 
-  var timer = (mapRow.timer || 200) * (opts.ctl * 3 || 1);
+  var timer = (mapRow.timer || 200) * (opts.ctl || 1);
 
   setTimeout(function() {
-    var rowData = getData(data, mapRow);
-    // If helper is array then row is multiple
-    if (Array.isArray(mapRow.type)) {
-      fillMultiple(mapRow, rowData);
-    }
-    else {
-      fillOutInput(mapRow.selector, rowData, mapRow.type, opts);
+    // If condition is given, continue only if it is fulfilled
+    if(!mapRow.condition || mapRow.condition(data)) {
+      var rowData = getData(data, mapRow);
+      // If helper is array then row is multiple
+      if (Array.isArray(mapRow.type)) {
+        fillMultiple(mapRow, rowData);
+      }
+      else {
+        fillOutInput(mapRow.selector, rowData, mapRow.type, opts);
+      }
     }
     
     fillFromMapperIterator(mapIterator, data, opts);
