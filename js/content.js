@@ -91,7 +91,7 @@ function fillDS(data) {
     if(mapper && !errors) {
       var iterator = new MapperIterator(InputMapper[parameter]);
       fillFromMapperIterator(iterator, data);
-      clickNext(mapper.length * 1000);
+      //clickNext(mapper.length * 1000);
     }
     else if(!mapper && !errors) {
       clickNext();

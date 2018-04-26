@@ -65,11 +65,19 @@ const InputMapper = {
       { key: "visa_type", selector: "OtherPurpose", type: "dropdown", timer: 400 }
     ] },
     { key: "specific_travel_plans", selector: "SpecificTravel", type: "radio", data: () => "No", timer: 1000 },
-    { key: "trippayment", selector: "WhoIsPaying", type: "dropdown", timer: 1500 },
+    { key: "trippayment", selector: "WhoIsPaying", type: "dropdown", timer: 1500, data: tripPayerRelation },
     { key: "arrival_date", selector: "TRAVEL", type: "date" },
     { key: "time_in_country", selector: "TRAVEL_LOS" },
     { key: "time_in_country_frame", selector: "TRAVEL_LOS_CD", type: "dropdown" },
-    { key: "us_stay_address", selector: "", type: "address", timer: 2000 },
+    { key: "us_stay_address", selector: "", type: "address", timer: 2000, data: usStayAddress },
+    //  TODO TRIP PAYER LOGIC
+    { key: "", selector: "PayerSurname" },
+    { key: "", selector: "PayerGivenName" },
+    { key: "payee_tel", selector: "PayerPhone" },
+    { key: "payee_email", selector: "PAYER_EMAIL_ADDR" },
+    { key: "", selector: "PayerRelationship" },
+    { key: "", selector: "PayerAddrSameAsInd", type: "radio" },
+    { key: "payee_address", selector: "Payer", type: "address" },
     
   ],
   TravelCompanions: [
@@ -355,6 +363,36 @@ function transformContactRelationData(data) {
     return "O";
   }
   return data["us_contact_relationship"];
+}
+
+function usStayAddress(data) {
+  // If user doesn't know anyone in US
+  // or if doesn't stay at point of contact's place
+  // use stay address
+  if(data["know_anyone_us"] == "No" ||
+    data["know_anyone_us"] == "Yes" && data["us_stay_same"] == "No") {
+    return data["us_stay_address"];
+  }
+
+  // Otherwise, use contact address
+  return data["us_contact_address"];
+}
+
+function tripPayerRelation(data) {
+  const relationMapper = {
+    self: "S",
+    company: "P",
+    father: "O",
+    mother: "O",
+    spouse: "O",
+    friend: "O",
+    child: "O",
+    relative: "O",
+    partner: "O",
+    organization: "C",
+  };
+
+  return relationMapper[data["trippayment"]];
 }
 
 function transformCompanionData(data, key) {

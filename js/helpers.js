@@ -181,17 +181,17 @@ function fillTextarea(name, value, container, ctl) {
 function fillOutSelect(name, value, container, ctl) {
   var elementId = getElementId(name, 'ddl', container, ctl),
     element = document.getElementById(elementId);
-  fillOutSelectElement(element, value);
-}
 
-function fillOutSelectElement(element, value) {
-  var valueUpperCase = value.toUpperCase();
   if(!element) {
     console.log('Could not find', elementId);
     return false;
   }
+  fillOutSelectElement(element, value);
+}
 
-  var currentValue = element.value;
+function fillOutSelectElement(element, value) {
+  var valueUpperCase = value.toUpperCase(),
+    currentValue = element.value;
 
   if(valueUpperCase == currentValue) {
     console.log('value already set');
