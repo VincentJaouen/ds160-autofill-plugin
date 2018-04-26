@@ -4,11 +4,11 @@ var embassyURLMapper = {
   "COLOMBIA, BOGOTA": "https://ais.usvisa-info.com/en-co/niv/information/niv_questions"
 }
 
-function setEmbassyDOB(dob) {
-  var dates = dob.split('/');
-  $("#applicant_date_of_birth_3i").val(parseInt(dates[0]));
-  $("#applicant_date_of_birth_2i").val(parseInt(dates[1]));
-  $("#applicant_date_of_birth_1i").val(parseInt(dates[2]));
+function setEmbassyDate(date, elementPartialId) {
+  var dates = date.split('/');
+  $("#" + elementPartialId + "_3i").val(parseInt(dates[0]));
+  $("#" + elementPartialId + "_2i").val(parseInt(dates[1]));
+  $("#" + elementPartialId + "_1i").val(parseInt(dates[2]));
 }
 
 function fillEmbassy(info) {
@@ -32,27 +32,35 @@ function fillEmbassy(info) {
   }
   else if (location.href.indexOf("applicants/new") != -1) {
     var email = "application+" + info.first_name.replace(/\s/g,'').latinize() + info.last_name.replace(/\s/g,'').latinize() + '@oliver.ai';
-    fillTextInput("applicant[first_name]", info.first_name, false, false);
-    fillTextInput("applicant[last_name]", info.last_name, false, false);
-    findInSelect("applicant_passport_country_code", info.passport_country);
-    findInSelect("applicant_birth_country_code", info.country_of_birth);
-    fillTextInput("applicant[passport_number]", info.passport_number);
-    setSelectValue("applicant_visa_class_id", "B1/B2 Business & Tourism (Temporary visitor)");
-    setEmbassyDOB(info.DOB);
-    findInSelect("applicant_gender", info.gender);
-    fillTextInput("applicant[phone1]", info.phone_number, false, false);
-    fillTextInput("applicant[email_address]", email, false, false);
 
-    if (info.ustravel_yn == "No") {
-      checkBox("applicant_is_a_renewal_false");
+    getElement("applicant_first_name").val(info.first_name);
+    getElement("applicant_last_name").val(info.last_name);
+
+    var countrySelect = document.getElementById("applicant_passport_country_code");
+    fillOutSelectElement(countrySelect, info.passport_country);
+    var birthCountrySelect = document.getElementById("applicant_birth_country_code");
+    fillOutSelectElement(birthCountrySelect, info.country_of_birth);
+    getElement("applicant_passport_number").val(info.passport_number);
+
+    var visaTypeSelect = document.getElementById("applicant_visa_class_id");
+    visaTypeSelect.value = 2; 
+
+    setEmbassyDate(info.DOB, "applicant_date_of_birth");
+
+    var genderSelect = document.getElementById("applicant_gender");
+    genderSelect.value = info.gender == "male" ? "M" : "F";
+
+    getElement("applicant_phone1").val(info.phone_number);
+    getElement("applicant_email_address").val(email);
+
+    if (info.previous_visa_yn == "No") {
+      checkElement("applicant_is_a_renewal_false");
     }
     else {
-      checkBox("applicant_is_a_renewal_true");
+      checkElement("applicant_is_a_renewal_true");
+      setEmbassyDate(info.previousvisa_issuedate, "applicant_visa_issue_date");
+      setEmbassyDate(info.previousvisa_expiration, "applicant_visa_expiration_date");
     }
-  }
-  else if (location.href.indexOf("courier") != -1) {
-    findInSelect("group_delivery_address_id", info.pickup_location_Argentina);
-    fillTextInput("group[care_of]", info.PickUp_Person);
   }
 
   return true;
