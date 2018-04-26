@@ -59,6 +59,7 @@ function fillFromMapperIterator(mapIterator, data, opts={}) {
       var rowData = getData(data, mapRow);
       // If helper is array then row is multiple
       if (Array.isArray(mapRow.type)) {
+        mapRow.parent = mapRow;
         fillMultiple(mapRow, rowData);
       }
       else {

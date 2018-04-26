@@ -98,6 +98,7 @@ function fillOutInput(name, value, type = 'text', opts={}) {
     // If value is empty or says "NA",
     // try to check does not apply box
     checkBox(name + "_NA", value, opts.container, opts.ctl);
+    console.log("value empty, check ", name + "_NA");
     return false;
   }
 
@@ -117,7 +118,7 @@ function errorsPresent() {
 function clickNext() {
   var nextButton = getElement('ctl00_SiteContentPlaceHolder_UpdateButton3');
   setTimeout(function() {
-    nextButton.focus();
+    //nextButton.focus();
     //nextButton.click();
   }, 5000);
 }
@@ -145,13 +146,23 @@ function checkYesNo(inputName, value, container, ctl) {
 
 function checkElement(elementId) {
   if (!getElement(elementId).is(':checked')) {
-    $('label[for="' + elementId + '"]').click();
+    var labelElem = $('label[for="' + elementId + '"]');
+    labelElem.click();
+    labelElem.focusout();
   }
 }
 
 function fillOutTextInput(name, value, container, ctl) {
   var elementId = getElementId(name, 'tbx', container, ctl),
-    element = getElement(elementId),
+    element = getElement(elementId);
+
+  // If element is not found, try with "tb"
+  if(element.length <= 0) {
+    elementId = getElementId(name, 'tb', container, ctl);
+    console.log('TRY WITH', elementId);
+    element = getElement(elementId);
+  }
+
   // Check if input has a character limit
     maxLength = parseInt(element.attr('maxlength'));
   if (value && maxLength) {
@@ -159,6 +170,7 @@ function fillOutTextInput(name, value, container, ctl) {
   }
 
   element.val(value);
+  element.focusout();
 }
 
 function fillTextarea(name, value, container, ctl) {
@@ -168,16 +180,24 @@ function fillTextarea(name, value, container, ctl) {
 
 function fillOutSelect(name, value, container, ctl) {
   var elementId = getElementId(name, 'ddl', container, ctl),
-    element = document.getElementById(elementId);
+    element = document.getElementById(elementId),
+    valueUpperCase = value.toUpperCase();
   if(!element) {
     console.log('Could not find', elementId);
     return false;
+  }
+
+  var currentValue = element.value;
+
+  if(valueUpperCase == currentValue) {
+    console.log('value already set');
+    return true;
   }
   
   // Check first if value is in option values
   for(var i = 0 ; i < element.options.length ; ++i) {
     var optionValue = element.options[i].value;
-    if(optionValue.toUpperCase() == value.toUpperCase()) {
+    if(optionValue == valueUpperCase) {
       setElementValue(element, optionValue);
       return true;
     }
@@ -186,6 +206,9 @@ function fillOutSelect(name, value, container, ctl) {
   for(var i = 0 ; i < element.options.length ; ++i) {
     var optionValue = element.options[i].value,
       label = element.options[i].text.alphanumerize().toUpperCase();
+
+    if(currentValue == optionValue) continue;
+
     if(label.indexOf(value) != -1 ||
       typeof value == "string" &&
       label.indexOf(value.alphanumerize().toUpperCase()) != -1) {
@@ -225,27 +248,26 @@ function setSelectValue(name, value, container, ctl, fromIndex = false) {
   });
 }
 
-
-
-
-
 function fillOutAddress(inputName, address, container, ctl) {
-  console.log('filloutAddress', inputName, address);
-  fillOutInput(inputName + "_LN1", address['street'], 'text');
-  fillOutInput(inputName + "StreetAddress1", address['street'], 'text');
-  fillOutInput(inputName + "Addr1", address['street'], 'text');
+  var opts = { container, ctl };
+  console.log('filloutAddress', inputName, address, opts);
+  fillOutInput(inputName + "_LN1", address['street'], 'text', opts);
+  fillOutInput(inputName + "StreetAddress1", address['street'], 'text', opts);
+  fillOutInput(inputName + "Addr1", address['street'], 'text', opts);
 
-  fillOutInput(inputName + "_LN2", address['line2'], 'text');
-  fillOutInput(inputName + "StreetAddress2", address['line2'], 'text');
+  fillOutInput(inputName + "_LN2", address['line2'], 'text', opts);
+  fillOutInput(inputName + "StreetAddress2", address['line2'], 'text', opts);
 
-  fillOutInput(inputName + "_CITY", address['city'], 'text');
-  fillOutInput(inputName + "City", address['city'], 'text');
+  fillOutInput(inputName + "_CITY", address['city'], 'text', opts);
+  fillOutInput(inputName + "City", address['city'], 'text', opts);
 
-  fillOutInput(inputName + "_POSTAL_CD", address['zip'], 'number');
-  fillOutInput(inputName + "ZIPCode", address['zip'], 'number');
+  fillOutInput(inputName + "_POSTAL_CD", address['zip'], 'number', opts);
+  fillOutInput(inputName + "ZIPCode", address['zip'], 'number', opts);
   
-  fillOutInput(inputName + "_STATE", address['state'], 'text');
-  fillOutInput("Country", address['country'], 'dropdown');
+  fillOutInput(inputName + "_STATE", address['state'], 'text', opts);
+  
+  fillOutInput(inputName + "Country", address['country'], 'dropdown', opts);
+  fillOutInput("Country", address['country'], 'dropdown', opts);
 }
 
 function fillSSN(inputName, value) { 

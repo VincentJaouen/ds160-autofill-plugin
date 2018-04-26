@@ -24,10 +24,10 @@ const InputMapper = {
     { key: "other_nationality_page", selector: "dtlOTHER_NATL", timer: 800, type: [
       { key: "other_nationality", selector: "OTHER_NATL", type: "dropdown" },
       { key: "other_passport_y/n", selector: "OTHER_PPT_IND", type: "radio"},
-      { key: "other_passport_number", selector: "OTHER_PPT_NUM", timer: 600 }
+      { key: "other_passport_number", selector: "OTHER_PPT_NUM", timer: 500 }
     ] },
-    { key: "other_residence_yn", selector: "PermResOtherCntryInd", type: "radio" },
-    { key: "other_residence_page", selector: "dtlOthPermResCntry", timer: 1200, type: [
+    { key: "other_residence_yn", selector: "PermResOtherCntryInd", type: "radio", timer: 2000 },
+    { key: "other_residence_page", selector: "dtlOthPermResCntry", timer: 2500, type: [
       { key: "other_residence", selector: "OthPermResCntry", type: "dropdown" }
     ] },
     { key: "national_id", selector: "APP_NATIONAL_ID" },
@@ -140,7 +140,100 @@ const InputMapper = {
     ], timer: 1000 },
     { key: "US_relatives_yn", selector: "US_OTHER_RELATIVE_IND", type: "radio" }
   ],
+  WorkEducation1: [
+    { key: "occupation", selector: "PresentOccupation", type: "dropdown", data: occupation },
+    { key: "work_name", selector: "EmpSchName", data: workName },
+    { key: "work_address", selector: "EmpSch", type: "address", data: workAddress },
+    { key: "work_zip", selector: "WORK_EDUC_ADDR_POSTAL_CD", data: workZip, type: "number" },
+    { key: "work_phone", selector: "WORK_EDUC_TEL", type: "number", data: workPhone },
+    { key: "work_start_date", selector: "EmpDateFrom", type: "date", data: workStartDate },
+    { key: "current_monthly_income", selector: "CURR_MONTHLY_SALARY", type: "number" },
+    { key: "work_duties", selector: "DescribeDuties", data: workDuties }
+  ],
+  WorkEducation2: [
+    { key: "previously_employed", selector: "PreviouslyEmployed", type: "radio" },
+    { key: "past_employment_group", selector: "dtlPrevEmpl", type: [
+      { key: "past_employer_name", selector: "EmployerName", timer: 200 },
+      { key: "past_employer_address", selector: "Employer", type: "address" },
+      { key: "past_employer_address", selector: "PREV_EMPL_ADDR", type: "address" },
+      { key: "past_employer_number", selector: "EmployerPhone", type: "number" },
+      { key: "past_job_title", selector: "JobTitle" },
+      { key: "supervisors_surnames", selector: "SupervisorSurname", data: (data) => data['supervisors_name'].split(' ').shift() },
+      { key: "supervisors_given_names", selector: "SupervisorGivenName", data: (data) => data['supervisors_name'].split(' ').pop() },
+      { key: "start_date", selector: "EmpDateFrom", type: "date" },
+      { key: "end_date", selector: "EmpDateTo", type: "date" },
+      { key: "past_duties", selector: "DescribeDuties" }
+    ], timer: 500 },
+    { key: "previous_education", selector: "OtherEduc", type: "radio", timer: 3000 },
+    { key: "previous_education_info_group", selector: "dtlPrevEduc", timer: 500, type: [
+      { key: "previous_school_name", selector: "SchoolName" },
+      { key: "previous_school_address", selector: "School", type: "address" },
+      { key: "previous_school_address", selector: "EDUC_INST_ADDR", type: "address" },
+      { key: "previous_course_study", selector: "SchoolCourseOfStudy" },
+      { key: "school_start", selector: "SchoolFrom", type: "date" },
+      { key: "school_end", selector: "SchoolTo", type: "date" }
+    ]}
+  ]
 };
+
+function surpervisorSurname(data) {
+
+}
+
+function occupation(data) {
+  if(data['is_student'] == "Yes" && data['student_primary'] == "Yes") {
+    return "S";
+  }
+  else if(data['currently_working'] == "Yes") {
+    return data['occupation'];
+  }
+  else return data['work_status'];
+}
+
+function workName(data) {
+  if(data['is_student'] == "Yes" && data['student_primary'] == "Yes") {
+    return data['school_name'];
+  }
+  
+  return data['employer_name'];
+}
+
+function workAddress(data) {
+  if(data['is_student'] == "Yes" && data['student_primary'] == "Yes") {
+    return data['school_address'];
+  }
+
+  return data['employer_address'];
+}
+
+function workZip(data) {
+  address = JSON.parse(workAddress(data));
+  return address['zip'];
+}
+
+function workPhone(data) {
+  if(data['is_student'] == "Yes" && data['student_primary'] == "Yes") {
+    return data['school_number'];
+  }
+
+  return data['employer_number'];
+}
+
+function workStartDate(data) {
+  if(data['is_student'] == "Yes" && data['student_primary'] == "Yes") {
+    return data['school_start'];
+  }
+
+  return data['start_date'];
+}
+
+function workDuties(data) {
+  if(data['is_student'] == "Yes" && data['student_primary'] == "Yes") {
+    return data['course_of_study'];
+  }
+
+  return data['employer_duties'];
+}
 
 function usContactAddress(data) {
   if(data['know_anyone_us'] == "Yes") {
