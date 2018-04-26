@@ -173,12 +173,111 @@ const InputMapper = {
       { key: "school_start", selector: "SchoolFrom", type: "date" },
       { key: "school_end", selector: "SchoolTo", type: "date" }
     ]}
+  ],
+  WorkEducation3: [
+    { key: "clan_yn", selector: "CLAN_TRIBE_IND", type: "radio" },
+    { key: "clan_name", selector: "CLAN_TRIBE_NAME", timer: 800 },
+    { key: "languages_page", selector: "dtlLANGUAGES", type: [
+      { key: "languages", selector: "LANGUAGE_NAME" }
+    ]},
+    { key: "travel_yn", selector: "COUNTRIES_VISITED_IND", timer: 2000, type: "radio" },
+    { key: "previous_countries", selector: "dtlCountriesVisited", timer: 1000, type: [
+      { key: "previous_countries_list", selector: "COUNTRIES_VISITED", type: "dropdown", timer: 500 }
+    ]},
+    { key: "charitable_yn", selector: "ORGANIZATION_IND", type: "radio" },
+    { key: "charitable_name", selector: "dtlORGANIZATIONS", type: [
+      { key: "", selector: "ORGANIZATION_NAME" }
+    ]},
+    { key: "taliban_yn", selector: "TALIBAN_IND", type: "radio" },
+    { key: "firearms_yn", selector: "SPECIALIZED_SKILLS_IND", type: "radio" },
+    { key: "firearms_explain", selector: "SPECIALIZED_SKILLS_EXPL" },
+    { key: "military_yn", selector: "MILITARY_SERVICE_IND", type: "radio" },
+    { key: "military_service", selector: "dtlMILITARY_SERVICE", type: [
+      { key: "army_country", selector: "MILITARY_SVC_CNTRY", type: "dropdown" },
+      { key: "army_branch", selector: "MILITARY_SVC_BRANCH" },
+      { key: "army_rank", selector: "MILITARY_SVC_RANK" },
+      { key: "army_specialty", selector: "MILITARY_SVC_SPECIALTY" },
+      { key: "army_begin", selector: "MILITARY_SVC_FROM", type: "date" },
+      { key: "army_end", selector: "MILITARY_SVC_TO", type: "date" }
+    ]},
+    { key: "guerilla_yn", selector: "INSURGENT_ORG_IND", type: "radio" },
+    { key: "guerilla_explain", selector: "INSURGENT_ORG_EXPL" }
+  ],
+  SecurityandBackground1: [
+    { key: "disease_yn", selector: "Disease", type: "radio" },
+    { key: "disease_explain", selector: "Disease", type: "radio" },
+    { key: "mental_yn", selector: "Disorder", type: "radio" },
+    { key: "mental_explain", selector: "Disease", type: "radio" },
+    { key: "drug_yn", selector: "Druguser", type: "radio" },
+    { key: "drug_explain", selector: "Disease", type: "radio" },
+
+  ],
+  SecurityandBackground2: [
+    { key: "convicted_yn", selector: "Arrested", type: "radio" },
+    { key: "convicted_explain", selector: "Arrested" },
+    { key: "substances_yn", selector: "ControlledSubstances", type: "radio" }, 
+    { key: "substances_explain", selector: "ControlledSubstances" },
+    { key: "prostitution_yn", selector: "Prostitution", type: "radio" }, 
+    { key: "prostitution_explain", selector: "Prostitution" },
+    { key: "laundering_yn", selector: "MoneyLaundering", type: "radio" }, 
+    { key: "laundering_explain", selector: "MoneyLaundering" },
+    { key: "trafficking_yn", selector: "HumanTrafficking", type: "radio" }, 
+    { key: "trafficking_explain", selector: "HumanTrafficking" },
+    { key: "ustrafficking_yn", selector: "AssistedSevereTrafficking", type: "radio" }, 
+    { key: "ustrafficking_explain", selector: "AssistedSevereTrafficking" },
+    { key: "traffickingrelation_yn", selector: "HumanTraffickingRelated", type: "radio" }, 
+    { key: "traffickingrelation_explain", selector: "HumanTraffickingRelated" },
+  ],
+  SecurityandBackground3: [
+    { key: "espionage_yn", selector: "IllegalActivity", type: "radio" },
+    { key: "espionage_explain", selector: "IllegalActivity" },
+    { key: "terrorism_yn", selector: "TerroristActivity", type: "radio" }, 
+    { key: "terrorism_explain", selector: "TerroristActivity" },
+    { key: "terrorsupport_yn", selector: "TerroristSupport", type: "radio" }, 
+    { key: "terrorsupport_explain", selector: "TerroristSupport" },
+    { key: "terrororg_yn", selector: "TerroristOrg", type: "radio" }, 
+    { key: "terrororg_explain", selector: "TerroristOrg" },
+    { key: "genocide_yn", selector: "Genocide", type: "radio" }, 
+    { key: "genocide_explain", selector: "Genocide" },
+    { key: "torture_yn", selector: "Torture", type: "radio" }, 
+    { key: "torture_explain", selector: "Torture" },
+    { key: "killing_yn", selector: "ExViolence", type: "radio" }, 
+    { key: "killing_explain", selector: "ExViolence" },
+    { key: "childsoldiers_yn", selector: "ChildSoldier", type: "radio" }, 
+    { key: "childsoldiers_explain", selector: "ChildSoldier" },
+    { key: "religion_yn", selector: "ReligiousFreedom", type: "radio" }, 
+    { key: "religion_explain", selector: "ReligiousFreedom" },
+    { key: "abortion_yn", selector: "PopulationControls", type: "radio" }, 
+    { key: "abortion_explain", selector: "PopulationControls" },
+    { key: "organ_yn", selector: "Transplant", type: "radio" }, 
+    { key: "organ_explain", selector: "Transplant" },
+  ],
+  SecurityandBackground4: [
+    { key: "removal_hearing_yn", selector: "RemovalHearing", type: "radio" },
+    { key: "removal_hearing_explain", selector: "RemovalHearing" },
+    { key: "immigration_fraud_yn", selector: "ImmigrationFraud", type: "radio" }, 
+    { key: "immigration_fraud_explain", selector: "ImmigrationFraud" },
+    { key: "fail_attend_yn", selector: "FailToAttend", type: "radio" }, 
+    { key: "fail_attend_explain", selector: "FailToAttend" },
+    { key: "visa_violation_yn", selector: "VisaViolation", type: "radio" }, 
+    { key: "visa_violation_explain", selector: "VisaViolation" },
+  ],
+  SecurityandBackground5: [
+    { key: "custody_yn", selector: "ChildCustody", type: "radio" },
+    { key: "custody_explain", selector: "ChildCustody" },
+    { key: "vote_yn", selector: "VotingViolation", type: "radio" }, 
+    { key: "vote_explain", selector: "VotingViolation" },
+    { key: "taxevasion_yn", selector: "RenounceExp", type: "radio" }, 
+    { key: "taxevasion_explain", selector: "RenounceExp" },
+    { key: "school_reimburse_yn", selector: "AttWoReimb", type: "radio" }, 
+    { key: "school_reimburse_explain", selector: "AttWoReimb" },
+  ],
+  SignCertify: [
+    { key: "assisted", selector: "PREP_IND", type: "radio", data: (data) => "Yes" },
+
   ]
+
 };
-
-function surpervisorSurname(data) {
-
-}
 
 function occupation(data) {
   if(data['is_student'] == "Yes" && data['student_primary'] == "Yes") {

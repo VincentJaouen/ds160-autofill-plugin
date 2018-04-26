@@ -115,12 +115,12 @@ function errorsPresent() {
   return false;
 }
 
-function clickNext() {
+function clickNext(timer = 0) {
   var nextButton = getElement('ctl00_SiteContentPlaceHolder_UpdateButton3');
   setTimeout(function() {
-    //nextButton.focus();
-    //nextButton.click();
-  }, 5000);
+    nextButton.focus();
+    nextButton.click();
+  }, timer);
 }
 
 function clickContinue() {

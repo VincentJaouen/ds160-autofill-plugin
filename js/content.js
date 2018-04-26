@@ -83,10 +83,14 @@ function fillDS(data) {
     if(mapper && !errors) {
       var iterator = new MapperIterator(InputMapper[parameter]);
       fillFromMapperIterator(iterator, data);
+      clickNext(mapper.length * 1000);
+    }
+    else if(!mapper && !errors) {
       clickNext();
+      console.log('No mapper, clickNext');
     }
     else {
-      console.log('Errors in form or no mapper');
+      console.log('Error in page');
     }
   }
 }
