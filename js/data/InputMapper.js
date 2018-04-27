@@ -147,6 +147,30 @@ const InputMapper = {
     ], timer: 1000 },
     { key: "US_relatives_yn", selector: "US_OTHER_RELATIVE_IND", type: "radio" }
   ],
+  Spouse: [
+    { key: "spouse_last", selector: "SpouseSurname" },
+    { key: "spouse_first", selector: "SpouseGivenName" },
+    { key: "spouse_dob", selector: "DOB", type: "date" },
+    { key: "spouse_nationality", selector: "SpouseNatDropDownList", type: "dropdown" },
+    // SPOUSE BIRTH CITY HAS BEEN REMOVED, SO AUTOMATICALLY CHECK DO NOT KNOW
+    { key: "spouse_birth_city", selector: "SpousePOBCity" },
+    { key: "spouse_birth_city_na", selector: "SPOUSE_POB_CITY", type: "checkbox" },
+
+    { key: "spouse_birth_country", selector: "SpousePOBCountry", type: "dropdown" },
+    { key: "spouse_living_yn", selector: "SpouseAddressType", type: "dropdown", data: spouseSameAddress },
+    { key: "spouse_address", selector: "SPOUSE_ADDR", type: "address", timer: 800 }
+  ],
+  DeceasedSpouse: [
+    { key: "spouse_last", selector: "SURNAME" },
+    { key: "spouse_first", selector: "GIVEN_NAME" },
+    { key: "spouse_dob", selector: "DOB", type: "date" },
+    { key: "spouse_nationality", selector: "SpouseNatDropDownList", type: "dropdown" },
+    // SPOUSE BIRTH CITY HAS BEEN REMOVED, SO AUTOMATICALLY CHECK DO NOT KNOW
+    { key: "spouse_birth_city", selector: "SpousePOBCity" },
+    { key: "spouse_birth_city_na", selector: "SPOUSE_POB_CITY", type: "checkbox" },
+
+    { key: "spouse_birth_country", selector: "SpousePOBCountry", type: "dropdown" },
+  ],
   WorkEducation1: [
     { key: "occupation", selector: "PresentOccupation", type: "dropdown", data: occupation },
     { key: "work_name", selector: "EmpSchName", data: workName },
@@ -285,6 +309,14 @@ const InputMapper = {
   ]
 
 };
+
+function spouseSameAddress(data) {
+  if(data["spouse_living_yn"] == "Yes") {
+    return "H";
+  }
+
+  return "O";
+}
 
 function occupation(data) {
   if(data['is_student'] == "Yes" && data['student_primary'] == "Yes") {

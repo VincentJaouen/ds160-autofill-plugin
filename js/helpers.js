@@ -271,6 +271,7 @@ function fillOutAddress(inputName, address, container, ctl) {
   fillOutInput(inputName + "_STATE", address['state'], 'text', opts);
   
   fillOutInput(inputName + "Country", address['country'], 'dropdown', opts);
+  fillOutInput(inputName + "_CNTRY", address['country'], 'dropdown', opts);
   fillOutInput("Country", address['country'], 'dropdown', opts);
 }
 
