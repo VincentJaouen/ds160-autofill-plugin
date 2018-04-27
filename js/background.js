@@ -11,7 +11,7 @@ function fetchApplicationData(applicationId, tabId, sendResponse) {
 	$.ajax({
 		type: "GET",
 		dataType: 'json',
-		url: "https://passpal.co/applications/" + applicationId + '.json',
+		url: "https://www.passpal.co/applications/" + applicationId + '.json',
 		success: function(application) {
 			fetchGroupData(application.user_id, application.data, tabId, sendResponse);
 		},
@@ -25,7 +25,7 @@ function fetchGroupData(userId, appData, tabId, sendResponse) {
   $.ajax({
     type: "GET",
     dataType: 'json',
-    url: "https://passpal.co/users/data?user_id=" + userId,
+    url: "https://www.passpal.co/users/data?user_id=" + userId,
     success: function(userData) {
       var data = Object.assign(appData, userData);
 			startForm(data, function() {
@@ -35,10 +35,6 @@ function fetchGroupData(userId, appData, tabId, sendResponse) {
 			});
     }
   });
-}
-
-function getAPIUrl(applicationId) {
-	return "https://passpal.co/applications/" + applicationId + '.json';
 }
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {

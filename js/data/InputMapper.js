@@ -65,18 +65,17 @@ const InputMapper = {
       { key: "visa_type", selector: "OtherPurpose", type: "dropdown", timer: 400 }
     ] },
     { key: "specific_travel_plans", selector: "SpecificTravel", type: "radio", data: () => "No", timer: 1000 },
-    { key: "trippayment", selector: "WhoIsPaying", type: "dropdown", timer: 1500, data: tripPayerRelation },
+    { key: "trippayment", selector: "WhoIsPaying", type: "dropdown", timer: 1500, data: whoIsPaying },
     { key: "arrival_date", selector: "TRAVEL", type: "date" },
     { key: "time_in_country", selector: "TRAVEL_LOS" },
     { key: "time_in_country_frame", selector: "TRAVEL_LOS_CD", type: "dropdown" },
     { key: "us_stay_address", selector: "", type: "address", timer: 2000, data: usStayAddress },
-    //  TODO TRIP PAYER LOGIC
-    { key: "", selector: "PayerSurname" },
-    { key: "", selector: "PayerGivenName" },
-    { key: "payee_tel", selector: "PayerPhone" },
-    { key: "payee_email", selector: "PAYER_EMAIL_ADDR" },
-    { key: "", selector: "PayerRelationship" },
-    { key: "", selector: "PayerAddrSameAsInd", type: "radio" },
+    { key: "payee_last_name", selector: "PayerSurname", data: payerLastName },
+    { key: "payee_first_name", selector: "PayerGivenName", data: payerFirstName },
+    { key: "payee_tel", selector: "PayerPhone", type: "number" },
+    { key: "payee_email", selector: "PAYER_EMAIL_ADDR", type: "email" },
+    { key: "payee_relationship", selector: "PayerRelationship", type: "dropdown", data: tripPayerRelation },
+    { key: "payee_address_yn", selector: "PayerAddrSameAsInd", type: "radio", data: payerAddressSame },
     { key: "payee_address", selector: "Payer", type: "address" },
     
   ],
@@ -378,7 +377,7 @@ function usStayAddress(data) {
   return data["us_contact_address"];
 }
 
-function tripPayerRelation(data) {
+function whoIsPaying(data) {
   const relationMapper = {
     self: "S",
     company: "P",
@@ -393,6 +392,58 @@ function tripPayerRelation(data) {
   };
 
   return relationMapper[data["trippayment"]];
+}
+
+function payerLastName(data) {
+  switch(data["trippayment"]) {
+    case "father":
+      return data["father_last_name"];
+    case "mother":
+      return data["mother_last_name"];
+    case "spouse":
+      return data["spouse_last"];
+  }
+
+  return data["payee_last_name"];
+}
+
+function payerFirstName(data) {
+  switch(data["trippayment"]) {
+    case "father":
+      return data["father_first_name"];
+    case "mother":
+      return data["mother_first_name"];
+    case "spouse":
+      return data["spouse_first"];
+  }
+
+  return data["payee_first_name"];
+}
+
+function tripPayerRelation(data) {
+  const relationMapper = {
+    company: "P",
+    father: "P",
+    mother: "P",
+    spouse: "S",
+    friend: "F",
+    child: "C",
+    relative: "R",
+    partner: "R",
+    organization: "C",
+  };
+
+  return relationMapper[data["trippayment"]];
+}
+
+function payerAddressSame(data) {
+  var payerAddress = JSON.parse(data["payee_address"]),
+    homeAddress = JSON.parse(data["user_address"]);
+  if(payerAddress["street"] == homeAddress["street"]) {
+    return "Yes";
+  }
+
+  return "No";
 }
 
 function transformCompanionData(data, key) {
