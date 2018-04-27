@@ -95,6 +95,9 @@ function fillDS(data) {
     var mapper = InputMapper[parameter],
       errors = errorsPresent();
     if(mapper && !errors) {
+      // playAction(createScenario(data, mapper));
+      // return;
+
       var iterator = new MapperIterator(InputMapper[parameter]);
       fillFromMapperIterator(iterator, data);
       clickNext(mapper.length * 1000);
@@ -106,6 +109,45 @@ function fillDS(data) {
     else {
       console.log('Error in page');
     }
+  }
+}
+
+function createScenario(data, mapper) {
+  console.log('create scenario', data, mapper);
+
+  var scenario = [];
+  for(var i = 0 ; i < mapper.length ; ++i) {
+    var row = mapper[i];
+    // If element is multiple
+    if(Array.isArray(row.type)) {
+      var dataSlice = data[row.key],
+        mapperSlice = row.type;
+      for(var j = 0 ; j < dataSlice.length ; ++j) {
+        var dataRow = dataSlice[j];
+        scenario.push({ id: row.selector, type: "eval" });
+        for(var k = 0 ; k < mapperSlice.length ; ++k) {
+          var sliceRow = mapperSlice[k], value = dataRow[sliceRow.key];
+          scenario.push({ id: sliceRow.selector, type: sliceRow.type, value });
+        }
+      }
+    }
+    // If element is single
+    else {
+      var value = data[row.key];
+      scenario.push({ id: row.selector, type: row.type, value });
+    }
+  }
+
+  return scenario;
+}
+
+function playAction(scenario, index = 0) {
+  var action = scenario[index];
+  if(action) {
+    setTimeout(function() {
+      console.log('play', action);
+      playAction(scenario, ++index);
+    }, 800);
   }
 }
 
