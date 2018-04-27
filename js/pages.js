@@ -70,19 +70,3 @@ function fillFromMapperIterator(mapIterator, data, opts={}) {
     fillFromMapperIterator(mapIterator, data, opts);
   }, timer);
 }
-
-function fillOutPageSignCertifyOld(personalData) {
-  checkBox("rblPREP_IND_0");
-
-  setTimeout(function(){
-    checkBox("PREP_NAME_NA");
-    fillTextInput("PREP_ORGANIZATION", 'OLIVER VISAS');
-    fillTextInput("PREP_ADDR_LN1", "456 JOHNSON AVENUE");
-    fillTextInput("PREP_ADDR_LN2", "STUDIO 200");
-    fillTextInput("PREP_ADDR_CITY", "Brooklyn");
-    fillTextInput("PREP_ADDR_STATE", "New York");
-    fillTextInput("PREP_ADDR_POSTAL_CD", "11237");
-    setSelectValue("ddlCountry", "UNITED STATES OF AMERICA");
-    fillTextInput("PREP_REL_TO_APP", "CONSULTANT");
-  }, 1000);
-}

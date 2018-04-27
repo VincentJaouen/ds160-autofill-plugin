@@ -33,8 +33,8 @@ function fillEmbassy(info) {
   else if (location.href.indexOf("applicants/new") != -1) {
     var email = "application+" + info.first_name.replace(/\s/g,'').latinize() + info.last_name.replace(/\s/g,'').latinize() + '@oliver.ai';
 
-    getElement("applicant_first_name").val(info.first_name);
-    getElement("applicant_last_name").val(info.last_name);
+    getElement("applicant_first_name").val(info.first_name.latinize());
+    getElement("applicant_last_name").val(info.last_name.latinize());
 
     var countrySelect = document.getElementById("applicant_passport_country_code");
     fillOutSelectElement(countrySelect, info.passport_country);
@@ -85,13 +85,19 @@ function fillDS(data) {
   var match = location.href.match(/\?node\=([A-Za-z0-9]*)$/gm);
 
   if (match && match.length > 0 && match[0]) {
-    var parameter = match[0].split('=')[1],
-      mapper = InputMapper[parameter],
+    var parameter = match[0].split('=')[1];
+
+    if (parameter == "SignCertify") {
+      fillOutSignaturePage(data);
+      return;
+    }
+
+    var mapper = InputMapper[parameter],
       errors = errorsPresent();
     if(mapper && !errors) {
       var iterator = new MapperIterator(InputMapper[parameter]);
       fillFromMapperIterator(iterator, data);
-      //clickNext(mapper.length * 1000);
+      clickNext(mapper.length * 1000);
     }
     else if(!mapper && !errors) {
       clickNext();
@@ -124,3 +130,20 @@ $( document ).ready(function() {
     }
    });
 });
+
+  function fillOutSignaturePage(data) {
+    $("label[for='ctl00_SiteContentPlaceHolder_FormView3_rblPREP_IND_0']").click().focusout();
+    $("#ctl00_SiteContentPlaceHolder_PPTNumTbx").val(data["passport_number"]);
+
+    setTimeout(function(){
+      $("label[for='ctl00_SiteContentPlaceHolder_FormView3_cbxPREP_NAME_NA']").click().focusout();
+      $("#ctl00_SiteContentPlaceHolder_FormView3_tbxPREP_ORGANIZATION").val("PASSPAL");
+      $("#ctl00_SiteContentPlaceHolder_FormView3_tbxPREP_ADDR_LN1").val("456 JOHNSON AVENUE");
+      $("#ctl00_SiteContentPlaceHolder_FormView3_tbxPREP_ADDR_LN2").val("STUDIO 200");
+      $("#ctl00_SiteContentPlaceHolder_FormView3_tbxPREP_ADDR_CITY").val("BROOKLYN");
+      $("#ctl00_SiteContentPlaceHolder_FormView3_tbxPREP_ADDR_STATE").val("NEW YORK");
+      $("#ctl00_SiteContentPlaceHolder_FormView3_tbxPREP_ADDR_POSTAL_CD").val("11237");
+      $("#ctl00_SiteContentPlaceHolder_FormView3_ddlCountry").val("USA");
+      $("#ctl00_SiteContentPlaceHolder_FormView3_tbxPREP_REL_TO_APP").val("CONSULTANT");
+    }, 1000);
+  }
